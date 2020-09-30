@@ -148,8 +148,8 @@
                         console.log('ESSAYONS AVEC CET OBJT PLAYERHAND VALUE DOMINOES VALUE', playerHand, dominoes)
                         machineHand.value.push(dominoes.value[0])
                         dominoes.value.shift()
-                        console.log('ESSAYONS AVEC LA VALUE', machineHand, dominoes)
-                        click++*/
+                        console.log('ESSAYONS AVEC LA VALUE', machineHand, dominoes)*/
+                        click++
                     }
                     await store.dispatch('updateDominoesAndHands', { playerHand, machineHand, dominoes })
                     console.log('TWO HANDS REFUELED')
