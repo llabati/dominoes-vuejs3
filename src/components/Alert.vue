@@ -1,6 +1,6 @@
 <template lang="pug">
-.intro
-    p(:class="{ 'show': alert.value, 'hidden': !alert.value }")    
+div(:class="{ 'intro': alert.value, 'hidden': !alert.value }")
+    p.lead {{ message }}   
 </template>
 
 <script>

@@ -2,6 +2,7 @@ import { createStore } from 'vuex'
 import Player from '../models/Player.js'
 import Machine from '../models/Machine.js'
 import Domino from '../models/Domino.js'
+import swap from '../hooks/swap.js'
 import _ from 'lodash'
 import gameModule from './game/index.js'
 
@@ -18,23 +19,11 @@ const store = createStore({
             top: [],
             right: [],
             bottom: [],
-            player: {
-                name: '',
-                hand: [],
-                recent_winning: false,
-                score: 0,
-                victories: 0
-            },
-            machine: {
-                hand: [],
-                recent_winning: false,
-                score: 0,
-                rounds_won: 0,
-                victories: 0
-            },
+            player: {},
+            machine: {},
             machineChoices: [],
             playerChoices: [],
-            lock: []
+            locks: []
         }
     },
     getters: {
@@ -80,6 +69,10 @@ const store = createStore({
         getStart(state){
             localStorage.setItem('round', JSON.stringify(state.start))
             return state.start
+        },
+        getLocks(state){
+            localStorage.setItem('locks', JSON.stringify(state.locks))
+            return state.locks
         }
     },
     actions: {
@@ -102,6 +95,12 @@ const store = createStore({
         },
         updateDominoesAndHands( { commit }, payload ){
             commit('UPDATE_DOMINOES_AND_HANDS', payload)
+        },
+        addToBoard( { commit }, domino) {
+            commit('ADD_TO_BOARD', domino)
+        },
+        addToLocks( { commit }, newLocks){
+            commit('ADD_TO_LOCKS', newLocks)
         }
         
 
@@ -160,11 +159,92 @@ const store = createStore({
       
       },
     UPDATE_DOMINOES_AND_HANDS(state, payload){
-        state.player.hand = payload.playerHand
-        state.machine.hand = payload.machineHand
-        state.dominoes = payload.dominoes
+        state.player.hand = payload.player.value.hand
+        state.machine.hand = payload.machine.value.hand
+        state.dominoes = payload.dominoes.value
         localStorage.setItem('player', JSON.stringify(state.player))
         localStorage.setItem('machine', JSON.stringify(state.machine))
+    },
+    ADD_TO_BOARD(state, domino){
+        console.log('STORE DOMINO ADD TO BOARD BEGINS', 'PIECE', domino, 'BOARD', state.board)
+      if (!state.board.length) {
+        //state.begin.push(domino)
+        //state.board.push(domino)
+        domino.value.left = true
+      }
+      else { 
+
+          console.log('COMPARING for left True or False', 'domino', domino.value.value, 'board', state.board, 'head', state.board[0])
+          if ( domino.value.value[0] === state.board[0].value[0] || domino.value.value[1] === state.board[0].value[0] ) domino.value.left = true
+          else domino.value.left = false
+  
+          if (domino.value.left === true) {
+            if (domino.value.value[1] !== state.board[0].value[0]) {
+              console.log('DOMINO BEFORE SWAP L', domino.value.value)
+                swap(domino)
+                console.log('SWAP LEFT!', domino.value.value)
+            }
+
+        }
+
+      if (domino.value.left === false) {
+          if (domino.value.value[0] !== state.board[state.board.length-1].value[1]){
+            console.log('DOMINO BEFORE SWAP R', domino.value.value)  
+            swap(domino)
+            console.log('SWAP RIGHT!', domino.value.value)
+          }
+          
+      }
+    }
+      if (state.board.length > 9) {
+        if (domino.value.left === true) {
+          if (state.left.length < 3) {
+            state.left.unshift(domino)
+            state.board.unshift(domino)
+          }
+          else {
+            state.top.push(domino)
+            state.board.unshift(domino)
+          }
+        }
+        else {
+          if (state.right.length < 3) {
+            state.right.push(domino)
+            state.board.push(domino)
+          }
+          else {
+            state.bottom.push(domino)
+            state.board.push(domino)
+          }
+        }
+      }
+        
+      else {
+        if (domino.left){
+          state.begin.unshift(domino)
+          state.board.unshift(domino)
+        }
+        else {
+          state.begin.push(domino)
+          state.board.push(domino)
+        }
+      }
+        
+      if (domino.value.player === true) {
+          let domoP = state.player.hand.find(d => (d.value.value[0] === domino.value.value[0] && d.value.value[1] === domino.value.value[1]) || (d.value.value[0] === domino.value.value[1] && d.value.value[1] === domino.value.value[0]))
+          let indexP = state.player.hand.indexOf(domoP)
+          console.log('DOMO PLAYER SPLICED FOM HAND', domoP, indexP)
+          state.player.hand.splice(indexP, 1)
+      }
+      else {
+          let domoM = state.machine.hand.find(d => (d.value.value[0] === domino.value.value[0] && d.value.value[1] === domino.value.value[1]) || (d.value.value[0] === domino.value.value[1] && d.value.value[1] === domino.value.value[0]))
+          let indexM = state.machine.hand.indexOf(domoM)
+          console.log('DOMO MACHINE SPLICED FROM HAND', domoM, indexM)
+          state.machine.hand.splice(indexM, 1)
+        }
+    },
+    ADD_TO_LOCKS(state, newLocks){
+        state.locks = [ ...newLocks ]
     }
         
     },

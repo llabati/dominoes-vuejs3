@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div @click="choose">
         <img v-if="value[0] === 1 && value[1] === 0" class="domino domino-swap" src="../assets/0-1.png">
         <img v-if="value[0] === 2 && value[1] === 0" class="domino domino-swap" src="../assets/0-2.png">
         <img v-if="value[0] === 3 && value[1] === 0" class="domino domino-swap" src="../assets/0-3.png">
@@ -57,14 +57,20 @@ export default {
     props: {
         value: Array
     },
-    /*methods: {
+    setup(props, context){
+        function choose(){
+            context.emit('chosen')
+        }
+
+    },
+    methods: {
         chooseForLeft(){
             this.$emit('chosenLeft')
         },
         chooseForRight(){
             this.$emit('chosenRight')
         }
-    }*/
+    }
 }
 </script>
 

@@ -84,15 +84,22 @@ export default function startingTheGame(){
           return starter
       }
 
-
-  function fullHand(playerHand, machineHand, dominoes){
-    console.log('FULL HAND', 'PLAYERHAND', playerHand, 'MACHINEHAND', machineHand)
+      function fullHand(player, machine, dominoes){
+        console.log('FULL HAND', 'PLAYERHAND', player.value.hand, 'MACHINEHAND', machine.value.hand, 'DOMINOES', dominoes.value)
+        player.value.hand.push(dominoes.value[0])
+        dominoes.value.shift()
+        machine.value.hand.push(dominoes.value[0])
+        dominoes.value.shift()
+        
+      }
+  /*function fullHand(playerHand, machineHand, dominoes){
+    console.log('FULL HAND', 'PLAYERHAND', playerHand, 'MACHINEHAND', machineHand, 'DOMINOES', dominoes)
     playerHand.value.push(dominoes.value[0])
     dominoes.value.shift()
     machineHand.value.push(dominoes.value[0])
     dominoes.value.shift()
     
-  }
+  }*/
 
   return [ whoStarts, fullHand ]
 
