@@ -96,6 +96,12 @@ const store = createStore({
         updateDominoesAndHands( { commit }, payload ){
             commit('UPDATE_DOMINOES_AND_HANDS', payload)
         },
+        setFirstValueForHead( { commit }, domino ){
+            commit('SET_FIRST_VALUE_FOR_HEAD', domino)
+        },
+        setFirstValueForTail( { commit }, domino ){
+            commit('SET_FIRST_VALUE_FOR_TAIL', domino)
+        },
         addToBoard( { commit }, domino) {
             commit('ADD_TO_BOARD', domino)
         },
@@ -165,39 +171,46 @@ const store = createStore({
         localStorage.setItem('player', JSON.stringify(state.player))
         localStorage.setItem('machine', JSON.stringify(state.machine))
     },
+    
+    SET_FIRST_VALUE_FOR_HEAD(state, domino){
+        state.head = domino.value.value[0]
+    },
+    SET_FIRST_VALUE_FOR_TAIL(state, domino){
+        state.tail = domino.value.value[1]
+    },
     ADD_TO_BOARD(state, domino){
         console.log('STORE DOMINO ADD TO BOARD BEGINS', 'PIECE', domino, 'BOARD', state.board)
       if (!state.board.length) {
         //state.begin.push(domino)
         //state.board.push(domino)
-        domino.value.left = true
+        domino.left = true
       }
       else { 
 
-          console.log('COMPARING for left True or False', 'domino', domino.value.value, 'board', state.board, 'head', state.board[0])
-          if ( domino.value.value[0] === state.board[0].value[0] || domino.value.value[1] === state.board[0].value[0] ) domino.value.left = true
-          else domino.value.left = false
-  
-          if (domino.value.left === true) {
-            if (domino.value.value[1] !== state.board[0].value[0]) {
-              console.log('DOMINO BEFORE SWAP L', domino.value.value)
+        console.log('COMPARING for left True or False', 'domino', domino, 'board', state.board, 'head', state.board[0].value[0])
+        if ( domino.value[0] === state.board[0].value[0] || domino.value[1] === state.board[0].value[0] ) domino.left = true
+        else domino.left = false
+
+        if (domino.left === true) {
+            if (domino.value[1] !== state.board[0].value[0]) {
+                console.log('DOMINO BEFORE SWAP L', domino)
                 swap(domino)
-                console.log('SWAP LEFT!', domino.value.value)
+                console.log('SWAP LEFT!', domino)
             }
 
         }
 
-      if (domino.value.left === false) {
-          if (domino.value.value[0] !== state.board[state.board.length-1].value[1]){
-            console.log('DOMINO BEFORE SWAP R', domino.value.value)  
+        if (domino.left === false) {
+            if (domino.value[0] !== state.board[state.board.length-1].value[1]){
+            console.log('DOMINO BEFORE SWAP R', domino)  
             swap(domino)
-            console.log('SWAP RIGHT!', domino.value.value)
-          }
-          
-      }
+            console.log('SWAP RIGHT!', domino)
+            }
+            
+        }
     }
       if (state.board.length > 9) {
-        if (domino.value.left === true) {
+        if (domino.left === true) {
           if (state.left.length < 3) {
             state.left.unshift(domino)
             state.board.unshift(domino)
@@ -230,14 +243,16 @@ const store = createStore({
         }
       }
         
-      if (domino.value.player === true) {
-          let domoP = state.player.hand.find(d => (d.value.value[0] === domino.value.value[0] && d.value.value[1] === domino.value.value[1]) || (d.value.value[0] === domino.value.value[1] && d.value.value[1] === domino.value.value[0]))
+      if (domino.player === true) {
+          console.log('HAND OF PLAYER in STORE', state.player.hand, 'DOMINO', domino)
+          let domoP = state.player.hand.find(d => (d.value[0] === domino.value[0] && d.value[1] === domino.value[1]) || (d.value[0] === domino.value[1] && d.value[1] === domino.value[0]))
           let indexP = state.player.hand.indexOf(domoP)
           console.log('DOMO PLAYER SPLICED FOM HAND', domoP, indexP)
           state.player.hand.splice(indexP, 1)
       }
       else {
-          let domoM = state.machine.hand.find(d => (d.value.value[0] === domino.value.value[0] && d.value.value[1] === domino.value.value[1]) || (d.value.value[0] === domino.value.value[1] && d.value.value[1] === domino.value.value[0]))
+          console.log('HAND OF MACHINE in STORE', state.machine.hand, 'DOMINO', domino)
+          let domoM = state.machine.hand.find(d => (d.value[0] === domino.value[0] && d.value[1] === domino.value[1]) || (d.value[0] === domino.value[1] && d.value[1] === domino.value[0]))
           let indexM = state.machine.hand.indexOf(domoM)
           console.log('DOMO MACHINE SPLICED FROM HAND', domoM, indexM)
           state.machine.hand.splice(indexM, 1)

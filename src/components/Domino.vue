@@ -61,14 +61,15 @@ export default {
         function choose(){
             context.emit('chosen')
         }
+        return { choose }
 
     },
     methods: {
         chooseForLeft(){
-            this.$emit('chosenLeft')
+            this.$emit('chosen-left')
         },
         chooseForRight(){
-            this.$emit('chosenRight')
+            this.$emit('chosen-right')
         }
     }
 }

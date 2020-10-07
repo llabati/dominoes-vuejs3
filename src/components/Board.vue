@@ -1,6 +1,6 @@
 <template lang="pug">
     
-.board(v-if='!start')
+.board(v-if='launch')
     
     #top(v-if='top.length')
         ul.flex-top-list
@@ -40,7 +40,7 @@ export default {
     components: {
         Domino
     },
-    inject: [ 'start' ],
+    inject: [ 'launch' ],
     setup(){
 /*
         const pieces = computed( function(){
@@ -49,9 +49,10 @@ export default {
         
         //let piece = {}
         */
-        const start = inject('start')
+        const launch = inject('launch')
         
         const begin = computed( function(){
+            console.log('BEGIN', store.getters.getBegin)
             return store.getters.getBegin
         })
 
@@ -75,7 +76,7 @@ export default {
             return store.getters.getBoard
         })
 
-        return [ store, start, begin, left, top, right, bottom, board ]
+        return { launch, store, begin, left, top, right, bottom, board }
         
     }
     

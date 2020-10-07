@@ -11,8 +11,8 @@ export default function startingTheGame(){
         console.log('MACHINE HAND', machine.value.hand)
 
           for (let dom of machine.value.hand) {
-              dom.value.total = dom.value[0] + dom.value[1]
-              dom.value.double = dom.value[0] == dom.value[1] ? true : false
+              dom.total = dom.value[0] + dom.value[1]
+              dom.double = dom.value[0] == dom.value[1] ? true : false
               console.log('DOM in STARTINGTHEGAME', dom) // dom est un Proxy
           }
           let doublesM = machine.value.hand.filter(d => d.double)
@@ -24,8 +24,8 @@ export default function startingTheGame(){
           
           console.log('PLAYER HAND', player.value.hand)
           for (let dom of player.value.hand) {
-              dom.value.total = dom.value[0] + dom.value[1]
-              dom.value.double = dom.value[0] == dom.value[1] ? true : false
+              dom.total = dom.value[0] + dom.value[1]
+              dom.double = dom.value[0] == dom.value[1] ? true : false
           }
           let doublesP = player.value.hand.filter(d => d.double)
           doublesP.sort( (a,b) => b.total - a.total)

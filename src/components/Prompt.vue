@@ -2,39 +2,33 @@
 div(:class="{ intro: show, hidden: !show }")
     p.lead(for='name') Entrez votre prénom
     form.input-zone
-        input.input-name(type='text' name='name' ref='name' v-focus @input='close')
+        input.input-name(type='text' name='name' ref='name' v-focus v-model="name")
         button.btn-name(@click='close') Envoyez
     
 </template>
 
 <script>
 /* eslint-disable */
-import { ref } from 'vue'
 
 export default {
     props: [],
     emits: [ 'newName' ],
-    setup(props, context){
-        let show = ref(true)
-        //let name = ref('')
-        console.log(context)
-
-        function close(event){
-            event.preventDefault()
-            let name = event.target.value
-            context.emit('newName', name)
-            show.value = false
-            console.log('CLOSE', name)
+    data(){
+        return {
+            show: true,
+            name: ''
         }
-
-        return { show, close }
-
+    },
+    methods: {
+        close(e){
+            e.preventDefault()
+            this.$emit('newName', this.name)
+            this.show = false
+        }
     },
     directives: {
-        focus: {
-            mounted(el) {
+        focus(el){
             el.focus()
-            }
         }
     }
     

@@ -1,30 +1,50 @@
 
-import store from '../store/index.js'
-import display from './display.js'
+//import store from '../store/index.js'
+
 export default {
     //state: store.state,
 
     // désigne la valeur gauche du domino placé à l'extrémité gauche du tapis de jeu
-    //calculateHead: function(){
-        
+    /*calculateHead: function(board, domino = undefined){
+        console.log('DOMINO for calculate head', domino, 'DOMINO [0]', domino[0])
+        let head
+        if(!board.length && domino){
+            head = domino[0]
+            console.log('HEAD FIRST', head)
+        }
+        else {
+            head = board[0][0]
+            console.log('HEAD', head)
+        }
+        return head
     //    return store.state.board[0].value[0]
-    //},
+    },
     // désigne la valeur droite du domino placé à l'extrémité droite du tapis
-    //calculateTail: function(){
-         
+    calculateTail: function(board, domino = undefined){
+        let tail
+        if(!board.length && domino){
+            tail = domino[1]
+            console.log('TAIL FIRST', tail)
+        }
+        else {
+            tail = board[board.length-1][1]
+            console.log('TAIL', tail)
+        }
+        return tail
      //   return store.state.board[store.state.board.length-1].value[1]
-    //},
-
+    },
+*/
     // évalue les choix du joueur
-    evaluatePlayerChoices: function(){
-      console.log('EVALUATE PLAYER CHOICES')
-      return player.value.hand.filter( d => d.value.value[0] === board.value[0].value[0] || d.value.value[0] === board.value[store.state.board.length-1].value[1] || d.value.value[1] === board.value[0].value[0] || d.value.value[1] === board.value[store.state.board.length-1].value[1] )
+    evaluatePlayerChoices: function(player, first, last){
+      console.log('EVALUATE PLAYER CHOICES', first, last, player.value.hand)
+      return player.value.hand.filter( d => d.value[0] === first || d.value[0] === last || d.value[1] === first || d.value[1] === last )
 
     },
 
     // empêche la mise par le joueur sur le tapis de jeu d'un domino inadéquat
-    warningWrongDomino: function(domino, head, tail, wrong) {
-        if(domino.value[0] !== head.value && domino.value[0] !== tail.value && domino.value[1] !== head.value && domino.value[1] !== tail.value) {
+    warningWrongDomino: function(domino, first, last, wrong) {
+        console.log('DOMINO in CALCULATIONS.WARNING', domino)
+        if(domino[0] !== first && domino[0] !== last && domino[1] !== first && domino[1] !== last) {
         console.log('WRONG DOMINO!')
         wrong.value = true
         //return this.chooseDomino(domino)
@@ -48,25 +68,22 @@ export default {
     },
 
     // déterminer les possibilités que la machine a de bloquer le joueur et de le forcer à piocher
-    lockPlayer(machineChoices, head, tail, newLocks, possibleLocks){
+    lockPlayer(machineChoices, newLocks, possibleLocks){
         
         console.log('MACHINECHOICES in LOCKPLAYER', machineChoices)
         
-        //let lockHead = machineChoices.filter (d => d.value[0] === head.value || d.value[1] === head.value)
-        //let lockTail = machineChoices.filter (d => d.value[0] === tail.value || d.value[1] === tail.value)
-
         // d'abord, filtrer les machineChoices avec les newLocks
         // sinon, filtrer les machineChoices avec les possibleLocks
         let lockChoices = []
         if (newLocks.length){
-            for (piece of machineChoices) {
+            for (let piece of machineChoices) {
                 if (newLocks.includes(piece.value[0]) || newLocks.includes(piece.value[1])) {
                     lockChoices.push(piece)
                 }
             }
         }
         else if (possibleLocks.length) {
-            for (piece of machineChoices) {
+            for (let piece of machineChoices) {
                 if (possibleLocks.includes(piece.value[0]) || possibleLocks.includes(piece.value[1])) {
                     lockChoices.push(piece)
                 }
@@ -75,8 +92,7 @@ export default {
         else lockChoices = []
         //let lockChoices = Array.from(new Set([ ...possibleLocks, ...newLocks ]))
         console.log('LOCKCHOICES', lockChoices)
-        //let locksNow = lockChoices.filter(d => d === head.value || d === tail.value)
-        //console.log('LOCKSNOW', locksNow)
+        
         return lockChoices
     }
 
