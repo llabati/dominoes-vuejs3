@@ -95,5 +95,10 @@ export default {
 .domino-quart {
     transform: rotate(-0.25turn);
 }
+.mandatory {
+    border: solid 1px red;
+    background-color: rgba(245, 0, 145, .2);
+    box-shadow: 1px 1px 1px red;
+}
 
 </style>

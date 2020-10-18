@@ -2,30 +2,51 @@
     
 .board(v-if='launch')
     
-    #top(v-if='top.length')
+    #top
         ul.flex-top-list
             li(v-for="piece in top" :key="piece.id" class="domino-mid")
                 domino(:value='piece.value' :class='{ "domino-vert": piece.isDouble, "domino-swap": piece.swap }')
         
-    #left(v-if='left.length')
+    #left
         ul.flex-left-list
             li(v-for="piece in left" :key="piece.id" style='margin: 30px' class="domino-vert domino-swap")
                 domino(:value='piece.value' :class='{ "domino-vert": piece.isDouble, "domino-swap": piece.swap }')
-        
-    #begin(v-if='begin.length')
+
+    #end-left
+        ul.flex-end-left-list
+            li(v-for="piece in endLeft" :key="piece.id" style='margin: 30px' class="domino-vert domino-swap")
+                domino(:value='piece.value' :class='{ "domino-vert": piece.isDouble, "domino-swap": piece.swap }')
+    
+    #end-end-left
+        ul.flex-bottom-list
+            li(v-for="piece in endEndLeft" :key="piece.id" class="domino-quart")
+                domino(:value='piece.value' :class='{ "domino-vert": !piece.isDouble ,"domino-swap": piece.swap }')
+
+    #begin
         ul.flex-list
             li(v-for="piece in begin" :key="piece.id")
                 domino(:value='piece.value' :class='{ "domino-vert": piece.isDouble, "domino-swap": piece.swap }')
         
-    #right(v-if='right.length')
+    #right
         ul.flex-right-list
             li(v-for="piece in right" :key="piece.id" style='margin: 30px' class='domino-vert domino-swap')
                 domino(:value='piece.value' :class='{ "domino-vert": piece.isDouble, "domino-swap": piece.swap }')
         
-    #bottom(v-if='bottom.length')
+    #bottom
         ul.flex-bottom-list
             li(v-for="piece in bottom" :key="piece.id" class="domino-quart")
                 domino(:value='piece.value' :class='{ "domino-vert": !piece.isDouble ,"domino-swap": piece.swap }')
+
+    #end-right
+        ul.flex-end-right-list
+            li(v-for="piece in endRight" :key="piece.id" style='margin: 30px' class="domino-vert domino-swap")
+                domino(:value='piece.value' :class='{ "domino-vert": piece.isDouble, "domino-swap": piece.swap }')
+
+    #end-end-right
+        ul.flex-list
+            li(v-for="piece in endEndRight" :key="piece.id")
+                domino(:value='piece.value' :class='{ "domino-vert": piece.isDouble, "domino-swap": piece.swap }')
+        
 
 </template>
 
@@ -33,7 +54,7 @@
 /* eslint-disable */
 import store from '../store/index'
 import Domino from './Domino.vue'
-import { inject, computed } from 'vue'
+import { inject, computed, watch } from 'vue'
 
 export default {
     store,
@@ -42,13 +63,7 @@ export default {
     },
     inject: [ 'launch' ],
     setup(){
-/*
-        const pieces = computed( function(){
-            return store.getters.getBoard().length
-        })
-        
-        //let piece = {}
-        */
+
         const launch = inject('launch')
         
         const begin = computed( function(){
@@ -63,6 +78,14 @@ export default {
         const top = computed( function(){
             return store.getters.getTop
         })
+
+        const endLeft = computed( function(){
+            return store.getters.getEndLeft
+        })
+
+        const endEndLeft = computed( function(){
+            return store.getters.getEndEndLeft
+        })
         
         const right = computed( function(){
             return store.getters.getRight
@@ -71,12 +94,22 @@ export default {
         const bottom = computed( function(){
             return store.getters.getBottom
         })
-        
-        const board = computed( function(){
-            return store.getters.getBoard
+
+        const endRight = computed( function(){
+            return store.getters.getEndRight
         })
 
-        return { launch, store, begin, left, top, right, bottom, board }
+        const endEndRight = computed( function(){
+            return store.getters.getEndEndRight
+        })
+        
+        const board = computed( function(){
+            console.log('BOARD in BOARD', store.getters.getBoard)
+            return store.getters.getBoard
+        })
+        watch(board, () => console.log('BOARD HAS ONE MORE!', board.value))
+
+        return { launch, store, begin, left, top, endLeft, endEndLeft, right, bottom, endRight, endEndRight, board }
         
     }
     
@@ -119,6 +152,12 @@ export default {
     flex-direction: column;
     justify-content: flex-start;
 }
+.flex-end-left-list{
+    list-style-type: none;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+}
 .flex-top-list {
     list-style-type: none;
     margin: none;
@@ -136,6 +175,22 @@ export default {
     flex-direction: row-reverse;
     justify-content: right;
     flex-wrap: wrap;
+}
+.flex-end-right-list {
+    list-style-type: none;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+}
+#end-left {
+    grid-column: 7 / 8;
+    grid-row: 2 / 5;
+    border: solid 1px white;
+}
+#end-end-left {
+    grid-column: 4 / 7;
+    grid-row: 4 / 5;
+    border: solid 1px white;
 }
 #top {
     grid-column: 2 / 8;
@@ -158,9 +213,6 @@ export default {
     border: solid 1px white;
 }
 #right {
-    /*position: relative;
-    left: 80%;
-    justify-content: flex-start; */
     grid-column: 7 / 8;
     grid-row: 7 / 11;
     border: solid 1px white;
@@ -169,7 +221,16 @@ export default {
     grid-column: 2 / 8;
     grid-row: 11 / 12;
     border: solid 1px white;
-
+}
+#end-right {
+    grid-column: 2 / 3;
+    grid-row: 8 / 11;
+    border: solid 1px white;
+}
+.end-end-right {
+    grid-column: 3 / 6;
+    grid-row: 8 / 9;
+    border: solid 1px white;
 }
 .piece {
     width: 80px;

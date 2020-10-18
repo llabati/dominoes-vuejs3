@@ -41,9 +41,14 @@ export default {
     }
 
     function setBoard(){
-      console.log('PLAY!!!')
-      launch.value = true
-      console.log('LAUNCH VALUE', launch.value)
+      
+      try {
+        launch.value = true
+        console.log('LAUNCH VALUE', launch.value)
+      }
+      catch {
+        console.error('Error is...')
+      }
     }
 
 

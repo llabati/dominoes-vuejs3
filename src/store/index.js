@@ -19,26 +19,37 @@ const store = createStore({
             top: [],
             right: [],
             bottom: [],
+            endLeft: [],
+            endEndLeft: [],
+            endRight: [],
+            endEndRight: [],
             player: {},
             machine: {},
             machineChoices: [],
             playerChoices: [],
-            locks: []
+            locks: [],
+            possibleLocks: [],
+            lockChoices: [],
+            alert: false,
+            playerWins: false,
+            machineWins: false,
+            neitherWins: false
         }
     },
     getters: {
         getPlayer(state){
-            console.log('PLAYER in STORE', state.player)
+            localStorage.setItem('player', JSON.stringify(state.player))
             return state.player
         },
         getMachine(state){
             return state.machine
         },
         getPlayerHand(state){
-            console.log('STORE PLAYERHAND', state.player.hand)
+            localStorage.setItem('player_hand', JSON.stringify(state.player.hand))
             return state.player.hand
         },
         getMachineHand(state){
+            localStorage.setItem('machine_hand', JSON.stringify(state.machine.hand))
             return state.machine.hand
         },
         getDominoes(state){
@@ -46,7 +57,16 @@ const store = createStore({
         },
         getBoard(state){
             console.log('BOARD', state.board)
+            localStorage.setItem('board', JSON.stringify(state.board))
             return state.board
+        },
+        getFirst(state){
+            if (!state.board.length) return undefined
+            else return state.board[0].value[0]
+        },
+        getLast(state){
+            if (!state.board.length) return undefined
+            else return state.board[state.board.length - 1].value[1]
         },
         getBegin(state){
             console.log('BEGIN', state.begin)
@@ -67,12 +87,30 @@ const store = createStore({
             return state.bottom
         },
         getStart(state){
-            localStorage.setItem('round', JSON.stringify(state.start))
             return state.start
         },
         getLocks(state){
             localStorage.setItem('locks', JSON.stringify(state.locks))
             return state.locks
+        },
+        getPossibleLocks(state){
+            localStorage.setItem('possibleLocks', JSON.stringify(state.possibleLocks))
+            return state.possibleLocks
+        },
+        getAlert(state){
+            return state.alert
+        },
+        getPlayerWins(state){
+            localStorage.setItem('player_wins', JSON.stringify(state.playerWins))
+            return state.playerWins
+        },
+        getMachineWins(state){
+            localStorage.setItem('machine_wins', JSON.stringify(state.machineWins))
+            return state.machineWins
+        },
+        getNeitherWins(state){
+            localStorage.setItem('neither_wins', JSON.stringify(state.neitherWins))
+            return state.neitherWins
         }
     },
     actions: {
@@ -107,6 +145,30 @@ const store = createStore({
         },
         addToLocks( { commit }, newLocks){
             commit('ADD_TO_LOCKS', newLocks)
+        },
+        updateLockChoices( { commit }, lockChoices){
+            commit('UPDATE_LOCKCHOICES', lockChoices)
+        },
+        evaluatePossibleLocks( { commit } ) {
+            commit('EVALUATE_POSSIBLE_LOCKS')
+        },
+        drawOne( { commit }, side ){
+            commit('DRAW_ONE', side)
+        },
+        setAlert( { commit } ){
+            commit('SET_ALERT')
+        },
+        unsetAlert( { commit } ){
+            commit('UNSET_ALERT')
+        },
+        playerWinsIsTrue( { commit } ){
+            commit('PLAYERWINS_IS_TRUE')
+        },
+        machineWinsIsTrue( { commit } ){
+            commit('MACHINEWINS_IS_TRUE')
+        },
+        neitherWinsIsTrue( { commit } ){
+            commit('NEITHERWINS_IS_TRUE')
         }
         
 
@@ -191,7 +253,7 @@ const store = createStore({
         if ( domino.value[0] === state.board[0].value[0] || domino.value[1] === state.board[0].value[0] ) domino.left = true
         else domino.left = false
 
-        if (domino.left === true) {
+        if (domino.left === true || domino.lefty === true) {
             if (domino.value[1] !== state.board[0].value[0]) {
                 console.log('DOMINO BEFORE SWAP L', domino)
                 swap(domino)
@@ -200,7 +262,7 @@ const store = createStore({
 
         }
 
-        if (domino.left === false) {
+        if (domino.left === false || domino.lefty === false) {
             if (domino.value[0] !== state.board[state.board.length-1].value[1]){
             console.log('DOMINO BEFORE SWAP R', domino)  
             swap(domino)
@@ -209,15 +271,23 @@ const store = createStore({
             
         }
     }
-      if (state.board.length > 9) {
+      if (state.board.length >= 9) {
         if (domino.left === true) {
-          if (state.left.length < 3) {
+          if (state.left.length <= 2) {
             state.left.unshift(domino)
             state.board.unshift(domino)
           }
-          else {
+          if (state.left.length > 2 && state.top.length < 9) {
             state.top.push(domino)
             state.board.unshift(domino)
+          }
+          if (state.top.length >= 9 && state.endLeft.length < 2) {
+              state.endLeft.push(domino)
+              state.board.unshift(domino)
+          }
+          else {
+              state.endEndLeft.push(domino)
+              state.board.unshift(domino)
           }
         }
         else {
@@ -225,9 +295,17 @@ const store = createStore({
             state.right.push(domino)
             state.board.push(domino)
           }
-          else {
+          if (state.right.length >= 3 && state.bottom.length <= 9) {
             state.bottom.push(domino)
             state.board.push(domino)
+          }
+          if (state.bottom.length > 9 && state.endRight.length < 2){
+              state.endRight.push(domino)
+              state.board.push(domino)
+          }
+          else {
+              state.endEndRight.push(domino)
+              state.board.push(domino)
           }
         }
       }
@@ -258,8 +336,51 @@ const store = createStore({
           state.machine.hand.splice(indexM, 1)
         }
     },
-    ADD_TO_LOCKS(state, newLocks){
-        state.locks = [ ...newLocks ]
+    ADD_TO_LOCKS(state){
+
+        state.locks = [ new Set( ...state.locks, state.board[0][0], state.board[state.board.length-1][1] ) ]
+    }, 
+    UPDATE_LOCKCHOICES(state, lockChoices){
+        state.lockChoices = [ ...lockChoices ]
+    },
+    // piocher
+    DRAW_ONE(state, side) {
+        if (side === 1) state.player.hand.push(state.dominoes[0])
+        if (side === 0) state.machine.hand.push(state.dominoes[0])
+        state.dominoes.shift()
+        console.log('STORE DRAWED!')
+    },
+    EVALUATE_POSSIBLE_LOCKS(state){
+        let knownDominoes = state.machine.hand.concat(state.board)
+        console.log('KNOWNDOMINOES', knownDominoes)
+        let valuedDominoes = knownDominoes.map( d => d.value )
+        console.log('VALUED DOMS', valuedDominoes)
+        let allValues = valuedDominoes.reduce( (acc, cur) => acc.concat(cur), [])
+        console.log('ALL VALUES', allValues)
+        let stats = allValues.reduce( (acc, cur) => {
+            if (!acc[cur]) acc[cur] = 1
+            else acc[cur]++
+            return acc
+            }, {}) 
+            console.log('WHERE ARE WE?', stats)
+        state.possibleLocks = Object.entries(stats).filter( d => d[1] > 4 )
+        
+        console.log('POSSIBLE LOCKS', state.possibleLocks)
+    },
+    SET_ALERT(state){
+        state.alert = true
+    },
+    UNSET_ALERT(state){
+        state.alert = false
+    },
+    PLAYERWINS_IS_TRUE(state){
+        state.playerWins = true
+    },
+    MACHINEWINS_IS_TRUE(state){
+        state.machineWins = true
+    },
+    NEITHERWINS_IS_TRUE(state){
+        state.neitherWins = true
     }
         
     },

@@ -1,6 +1,7 @@
-
+/* eslint-disable */
 //import store from '../store/index.js'
-
+import setScores from '../hooks/setScores.js'
+//import updateScores from '../hooks/updateScores.js'
 export default {
     //state: store.state,
 
@@ -36,9 +37,14 @@ export default {
 */
     // évalue les choix du joueur
     evaluatePlayerChoices: function(player, first, last){
-      console.log('EVALUATE PLAYER CHOICES', first, last, player.value.hand)
-      return player.value.hand.filter( d => d.value[0] === first || d.value[0] === last || d.value[1] === first || d.value[1] === last )
-
+        console.log('EVALUATE PLAYER CHOICES', 'FIRST', first, 'LAST', last, 'PLAYER', player)
+        let selection = player.value.hand.filter( d => d.value[0] === first || d.value[0] === last || d.value[1] === first || d.value[1] === last )
+        for (let domino of selection){
+            if ( domino.value[0] === first && domino.value[1] === last || domino.value[0] === last && domino.value[1] === first ){
+                domino.ambidextrous = true
+            }
+        }
+        return selection
     },
 
     // empêche la mise par le joueur sur le tapis de jeu d'un domino inadéquat
@@ -55,7 +61,7 @@ export default {
     // favorise le choix des doubles
     calculateBestChoice: function(machineChoices){
         console.log('MACHINECHOICES ENTERING CALCULEBEST CHOICE', machineChoices)
-            let computedChoices = machineChoices.map(e => [ e.value[0], e.value[1], e.value[0] + e.value[1] ])
+            let computedChoices = machineChoices.value.map(e => [ e.value[0], e.value[1], e.value[0] + e.value[1] ])
                 console.log('COMPUTEDCHOICES', computedChoices)
 
             let finalChoices = (computedChoices.find( e => e[0] === e[1])) ? computedChoices.filter(a => a[0] === a[1]).sort((a,b) => b[2] - a[2]) : computedChoices.sort((a,b) => b[2] - a[2])
@@ -70,21 +76,23 @@ export default {
     // déterminer les possibilités que la machine a de bloquer le joueur et de le forcer à piocher
     lockPlayer(machineChoices, newLocks, possibleLocks){
         
-        console.log('MACHINECHOICES in LOCKPLAYER', machineChoices)
+        //console.log('MACHINECHOICES in LOCKPLAYER', machineChoices, newLocks.value, possibleLocks.value)
         
         // d'abord, filtrer les machineChoices avec les newLocks
         // sinon, filtrer les machineChoices avec les possibleLocks
         let lockChoices = []
-        if (newLocks.length){
-            for (let piece of machineChoices) {
-                if (newLocks.includes(piece.value[0]) || newLocks.includes(piece.value[1])) {
+        if (newLocks.value.length > 0){
+            //console.log('NEW LOCKS', newLocks, 'MACHINE CHOICES', machineChoices)
+            for (let piece of machineChoices.value) {
+                console.log('MACHINE CHOICES', machineChoices, 'THIS PIECE', piece)
+                if (newLocks.value.includes(piece.value[0]) || newLocks.value.includes(piece.value[1])) {
                     lockChoices.push(piece)
                 }
             }
         }
-        else if (possibleLocks.length) {
-            for (let piece of machineChoices) {
-                if (possibleLocks.includes(piece.value[0]) || possibleLocks.includes(piece.value[1])) {
+        else if (possibleLocks.value.length) {
+            for (let piece of machineChoices.value) {
+                if (possibleLocks.value.includes(piece.value[0]) || possibleLocks.value.includes(piece.value[1])) {
                     lockChoices.push(piece)
                 }
             }
@@ -94,6 +102,23 @@ export default {
         console.log('LOCKCHOICES', lockChoices)
         
         return lockChoices
+    },
+
+    //calculer le score final
+    calculateScores(results){
+        console.log('RESULTATS : QUI GAGNE ?', results)
+        let playerTotal = setScores(results.player)
+        let machineTotal = setScores(results.machine)
+        console.log('PLAYER TOTAL', playerTotal, 'MACHINE TOTAL', machineTotal)
+        if (results.neitherWins) {
+            return playerTotal - machineTotal
+        }
+        if (results.playerWins) {
+            return machineTotal
+        }
+        if (results.machineWins){
+            return playerTotal
+        }
     }
 
 

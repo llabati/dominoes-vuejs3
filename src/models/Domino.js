@@ -6,7 +6,6 @@ class Domino {
         this.isDouble = this.isDouble()
         this.left = true
         this.swap = false
-        this.player = true
     }
     isDouble(){
         return this.value[0] === this.value[1]

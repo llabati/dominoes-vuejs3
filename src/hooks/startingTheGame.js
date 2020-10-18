@@ -1,3 +1,4 @@
+/* eslint-disable */
 export default function startingTheGame(){
   //console.log('PLAYER in HOOK', player)
 
@@ -42,6 +43,9 @@ export default function startingTheGame(){
               else {
                 player.value.isStarting = true
                 machine.value.isStarting = false
+                /*let firstDomino = player.value.hand.find( d => d.value[0] === playerFirst.value[0] && d.value[1] === playerFirst.value[1])
+                firstDomino.isStarter = true
+                console.log('FIRST DOMINO', firstDomino)*/
               }
               console.log('WHO STARTS', starter)
           }
@@ -54,6 +58,9 @@ export default function startingTheGame(){
               starter = player
               player.value.isStarting = true
               machine.value.isStarting = false
+              /*let firstDomino = player.value.hand.find( d => d.value[0] === playerFirst.value[0] && d.value[1] === playerFirst.value[1])
+              firstDomino.isStarter = true
+              console.log('FIRST DOMINO', firstDomino)*/
               }
           if (!doublesM.length && !doublesP.length) {
               starter = machineFirst.value[0] + machineFirst.value[1] > playerFirst.value[0] + playerFirst.value[1] ? machine : player
@@ -64,6 +71,9 @@ export default function startingTheGame(){
               else {
                 player.value.isStarting = true
                 machine.value.isStarting = false
+                /*let firstDomino = player.value.hand.find( d => d.value[0] === playerFirst.value[0] && d.value[1] === playerFirst.value[1])
+                firstDomino.isStarter = true
+                console.log('FIRST DOMINO', firstDomino)*/
               }
             }
             
