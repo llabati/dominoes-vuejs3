@@ -14,6 +14,8 @@ const store = createStore({
             start: false,
             dominoes: [],
             board: [],
+            first: undefined,
+            last: undefined,
             begin: [],
             left: [],
             top: [],
@@ -48,6 +50,10 @@ const store = createStore({
             localStorage.setItem('player_hand', JSON.stringify(state.player.hand))
             return state.player.hand
         },
+        getPlayerChoices(state){
+            localStorage.setItem('player_choices', JSON.stringify(state.playerChoices))
+            return state.playerChoices
+        },
         getMachineHand(state){
             localStorage.setItem('machine_hand', JSON.stringify(state.machine.hand))
             return state.machine.hand
@@ -61,12 +67,12 @@ const store = createStore({
             return state.board
         },
         getFirst(state){
-            if (!state.board.length) return undefined
-            else return state.board[0].value[0]
+            if (!state.board.length) return state.first = undefined
+            else return state.first = state.board[0].value[0]
         },
         getLast(state){
-            if (!state.board.length) return undefined
-            else return state.board[state.board.length - 1].value[1]
+            if (!state.board.length) return state.last = undefined
+            else return state.last = state.board[state.board.length - 1].value[1]
         },
         getBegin(state){
             console.log('BEGIN', state.begin)
@@ -101,11 +107,11 @@ const store = createStore({
             return state.alert
         },
         getPlayerWins(state){
-            localStorage.setItem('player_wins', JSON.stringify(state.playerWins))
+            //localStorage.setItem('player_wins', JSON.stringify(state.playerWins))
             return state.playerWins
         },
         getMachineWins(state){
-            localStorage.setItem('machine_wins', JSON.stringify(state.machineWins))
+            //localStorage.setItem('machine_wins', JSON.stringify(state.machineWins))
             return state.machineWins
         },
         getNeitherWins(state){
@@ -139,6 +145,9 @@ const store = createStore({
         },
         setFirstValueForTail( { commit }, domino ){
             commit('SET_FIRST_VALUE_FOR_TAIL', domino)
+        },
+        evaluatePlayerChoices( { commit } ) {
+            commit('EVALUATE_PLAYER_CHOICES')
         },
         addToBoard( { commit }, domino) {
             commit('ADD_TO_BOARD', domino)
@@ -240,6 +249,16 @@ const store = createStore({
     SET_FIRST_VALUE_FOR_TAIL(state, domino){
         state.tail = domino.value.value[1]
     },
+    EVALUATE_PLAYER_CHOICES(state){
+        //console.log('EVALUATE PLAYER CHOICES', 'FIRST', first, 'LAST', last, 'PLAYER', player)
+        state.playerChoices = state.player.hand.filter( d => d.value[0] === state.first || d.value[0] === state.last || d.value[1] === state.first || d.value[1] === state.last )
+        for (let domino of state.playerChoices){
+            if ( domino.value[0] === state.first && domino.value[1] === state.last || domino.value[0] === state.last && domino.value[1] === state.first ){
+                domino.ambidextrous = true
+            }
+        }
+        
+    },
     ADD_TO_BOARD(state, domino){
         console.log('STORE DOMINO ADD TO BOARD BEGINS', 'PIECE', domino, 'BOARD', state.board)
       if (!state.board.length) {
@@ -336,9 +355,10 @@ const store = createStore({
           state.machine.hand.splice(indexM, 1)
         }
     },
-    ADD_TO_LOCKS(state){
+    ADD_TO_LOCKS(state, newLocks){
 
-        state.locks = [ new Set( ...state.locks, state.board[0][0], state.board[state.board.length-1][1] ) ]
+        state.locks = [ ...state.locks, ...newLocks ]
+        state.locks = new Set(state.locks)
     }, 
     UPDATE_LOCKCHOICES(state, lockChoices){
         state.lockChoices = [ ...lockChoices ]

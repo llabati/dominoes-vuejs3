@@ -1,6 +1,7 @@
 /* eslint-disable */
 //import store from '../store/index.js'
 import setScores from '../hooks/setScores.js'
+import swap from '../hooks/swap.js'
 //import updateScores from '../hooks/updateScores.js'
 export default {
     //state: store.state,
@@ -74,23 +75,37 @@ export default {
     },
 
     // déterminer les possibilités que la machine a de bloquer le joueur et de le forcer à piocher
-    lockPlayer(machineChoices, newLocks, possibleLocks){
+    lockPlayer(machineChoices, newLocks, first, last, possibleLocks){
         
         //console.log('MACHINECHOICES in LOCKPLAYER', machineChoices, newLocks.value, possibleLocks.value)
+        let actualLocks = newLocks.filter( d => d.value.includes(first.value) || d.value.includes(last.value) )
+        let stopChoice = actualLocks.find( d => d.value === [ first.value, last.value ] || d.value === [ last.value, first.value ] )
+
+        if (stopChoice && newLocks.value.includes(first.value) && stopChoice.value === [ first.value, last.value ]){
+            stopChoice = swap(stopChoice)
+        }
+        if (stopChoice && newLocks.value.includes(last.value) && stopChoice.value === [ first.value, last.value ]){
+            stopChoice = swap(stopChoice)
+        }
+
+        if (stopChoice) machineChoices.value = [ stopChoice ]
+        if (actualLocks) machineChoices.value = machineChoices.filter( d => !d.value.includes(actualLocks[0]) || !d.value.includes(actualLocks[1]) )
+        
+        //let lockChoices = []
+        //let stopChoice = doubleLockPlayer(first, last, newLocks, machineChoices)
         
         // d'abord, filtrer les machineChoices avec les newLocks
         // sinon, filtrer les machineChoices avec les possibleLocks
-        let lockChoices = []
-        if (newLocks.value.length > 0){
+        //if (newLocks.value.length > 0){
             //console.log('NEW LOCKS', newLocks, 'MACHINE CHOICES', machineChoices)
-            for (let piece of machineChoices.value) {
+           /* for (let piece of machineChoices.value) {
                 console.log('MACHINE CHOICES', machineChoices, 'THIS PIECE', piece)
                 if (newLocks.value.includes(piece.value[0]) || newLocks.value.includes(piece.value[1])) {
                     lockChoices.push(piece)
                 }
             }
-        }
-        else if (possibleLocks.value.length) {
+        }*/
+        /*else if (possibleLocks.value.length) {
             for (let piece of machineChoices.value) {
                 if (possibleLocks.value.includes(piece.value[0]) || possibleLocks.value.includes(piece.value[1])) {
                     lockChoices.push(piece)
@@ -99,9 +114,24 @@ export default {
         }
         else lockChoices = []
         //let lockChoices = Array.from(new Set([ ...possibleLocks, ...newLocks ]))
-        console.log('LOCKCHOICES', lockChoices)
+        console.log('LOCKCHOICES', lockChoices)*/
         
-        return lockChoices
+        return machineChoices
+    },
+
+    doubleLockPlayer(first, last, newLocks, machineChoices){
+        
+        if (newLocks.value.includes(first.value) || newLocks.value.includes(last.value)){
+            let stopChoice = machineChoices.find( d => d.value === [ last.value, first.value ] || d.value === [ first.value, last.value ])
+        }
+        if (stopChoice && newLocks.value.includes(first.value) && stopChoice.value === [ first.value, last.value ]){
+            stopChoice = swap(stopChoice)
+        }
+        if (stopChoice && newLocks.value.includes(last.value) && stopChoice.value === [ first.value, last.value ]){
+            stopChoice = swap(stopChoice)
+        }
+        return stopChoice
+        
     },
 
     //calculer le score final

@@ -9,18 +9,18 @@ div
 <script>
 export default {
     props: [ 'message' ],
-    setup () {
-        let lefty = true
+    setup (props, context) {
+        let side = ''
         function left(){
-            //context.emit('place-to-left')
-            return lefty = true
+            context.emit('place-to-left')
+            
         }
         function right(){
-            //context.emit('place-to-right')
-            return lefty = false
+            context.emit('place-to-right')
+            
         }
 
-        return { lefty, left, right }
+        return { side, left, right }
     }
 }
 </script>

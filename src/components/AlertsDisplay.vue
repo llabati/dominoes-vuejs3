@@ -12,12 +12,13 @@ import store from '../store/index.js'
 import { inject } from 'vue'
 import { computed } from 'vue'
 export default {
-    setup () {
+    setup (props, context) {
         let alert = computed( () => store.getters.getAlert )
         let message = inject('message')
 
         function closeAlert(){
             store.dispatch('unsetAlert')
+            context.emit('clear-message')
         }
 
         return { alert, message, closeAlert }
