@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { createStore } from 'vuex'
 import Player from '../models/Player.js'
 import Machine from '../models/Machine.js'
@@ -290,6 +291,63 @@ const store = createStore({
             
         }
     }
+
+    if (state.board.length > 21){
+        if (domino.left === true) {
+            state.endEndLeft.push(domino)
+            state.board.unshift(domino)
+        }
+        else {
+            state.endEndRight.push(domino)
+            state.board.push(domino)
+        }
+    }
+
+    if (state.board.length <= 21 && state.board.length > 19) {
+        if (domino.left === true) {
+            state.endLeft.push(domino)
+            state.board.unshift(domino)
+        }
+        else {
+            state.endRight.push(domino)
+            state.board.push(domino)
+        }
+    
+    }
+
+    if (state.board.length <= 19 && state.board.length > 11) {
+        if (domino.left === true) {
+            state.top.push(domino)
+            state.board.unshift(domino)
+        }
+        else {
+            state.bottom.push(domino)
+            state.board.push(domino)
+        }
+    }
+
+    
+    if (state.board.length <= 11 && state.board.length > 8){
+        if (domino.left === true){
+            state.left.unshift(domino)
+            state.board.unshift(domino)
+        }
+        else {
+            state.right.push(domino)
+            state.board.push(domino)
+        }
+    }
+    if (state.board.length <= 8) {
+        if (domino.left){
+            state.begin.unshift(domino)
+            state.board.unshift(domino)
+        }
+        else {
+            state.begin.push(domino)
+            state.board.push(domino)
+        }
+    }
+    /*
       if (state.board.length >= 9) {
         if (domino.left === true) {
           if (state.left.length <= 2) {
@@ -339,6 +397,9 @@ const store = createStore({
           state.board.push(domino)
         }
       }
+
+      */
+      // à quelle main enelever le domino joué (joueur ou machine) ?
         
       if (domino.player === true) {
           console.log('HAND OF PLAYER in STORE', state.player.hand, 'DOMINO', domino)

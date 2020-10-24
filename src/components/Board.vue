@@ -34,8 +34,8 @@
         
     #bottom
         ul.flex-bottom-list
-            li(v-for="piece in bottom" :key="piece.id" class="domino-quart")
-                domino(:value='piece.value' :class='{ "domino-vert": !piece.isDouble ,"domino-swap": piece.swap }')
+            li(v-for="piece in bottom" :key="piece.id" class="domino-inverse")
+                domino(:value='piece.value' :class='{ "domino-vert": piece.isDouble ,"domino-swap": piece.swap }')
 
     #end-right
         ul.flex-end-right-list

@@ -80,7 +80,6 @@ export default {
 .domino {
     height: 40px;
     width: 80px;
-    margin: 2px;
     border: solid 1px black;
 }
 .domino-vert {
@@ -92,8 +91,8 @@ export default {
 .domino-mid {
     transform: rotate(0.50turn);
 }
-.domino-quart {
-    transform: rotate(-0.25turn);
+.domino-inverse {
+    transform: rotate(0.50turn);
 }
 .mandatory {
     border: solid 1px red;

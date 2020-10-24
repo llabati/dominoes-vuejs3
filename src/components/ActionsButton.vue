@@ -1,5 +1,5 @@
 <template lang="pug">
-button.intro(:class="{ 'draw': draw, 'stop-drawing': stopDrawing, 'restart': restart }" @click="actions") 
+button.intro(:class="{ 'draw': draw, 'stop-drawing': stopDrawing }" @click="actions") 
     strong {{ name }}, 
     strong
         slot
@@ -10,31 +10,32 @@ button.intro(:class="{ 'draw': draw, 'stop-drawing': stopDrawing, 'restart': res
 import { inject } from 'vue'
 
 export default {
-    inject: [ 'name', 'message', 'start', 'draw', /*'restart', */'stopDrawing' ],
+    inject: [ 'name', 'start', 'draw', 'stopDrawing' ],
     setup (props, context) {
         let name = inject('name')
-        //let message = inject('message')
         let start = inject('start')
         let draw = inject('draw')
         let stopDrawing = inject('stopDrawing')
-        //let restart = inject('restart')
         console.log('START in ACTION', start)
 
         function actions(){
             if (start.value) context.emit('launch')
             if (draw.value) context.emit('drawing')
-            //if (restart.value) context.emit('restarting')
-            else context.emit('stop')
+            if (stopDrawing.value) context.emit('stop')
         }
 
         return {
-            name, start, draw, /*restart, */stopDrawing, actions
+            name, start, draw, stopDrawing, actions
         }
     }
 }
 </script>
 
 <style>
+.center {
+    width: 20%;
+    margin: 0 auto;
+}
 .draw {
     background: orange;
     color: black;
