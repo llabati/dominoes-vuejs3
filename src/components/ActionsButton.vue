@@ -16,7 +16,7 @@ export default {
         let start = inject('start')
         let draw = inject('draw')
         let stopDrawing = inject('stopDrawing')
-        console.log('START in ACTION', start)
+        console.log('STOP DRAWING', stopDrawing, 'VALUE', stopDrawing.value)
 
         function actions(){
             if (start.value) context.emit('launch')
@@ -47,6 +47,9 @@ export default {
 .stop-drawing {
     background: yellow;
     color: black;
+}
+.choose {
+    background: purple;
 }
 
 </style>

@@ -1,6 +1,4 @@
 <template lang="pug">
-
-//div(:class="{ 'intro': alert.value, 'alert': alert.value, 'hidden': !alert.value }")
 .intro.alert
     p.lead {{ message }}
     div(style='width: 100%; margin: 10px;') 
@@ -15,10 +13,14 @@ export default {
     setup (props, context) {
         let alert = computed( () => store.getters.getAlert )
         let message = inject('message')
+        let reset = inject('reset')
 
         function closeAlert(){
             store.dispatch('unsetAlert')
             context.emit('clear-message')
+            if (reset.value) {
+                context.emit('go-next')
+            }
         }
 
         return { alert, message, closeAlert }

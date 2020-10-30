@@ -23,9 +23,9 @@ const store = createStore({
             right: [],
             bottom: [],
             endLeft: [],
-            endEndLeft: [],
+            veryEndLeft: [],
             endRight: [],
-            endEndRight: [],
+            veryEndRight: [],
             player: {},
             machine: {},
             machineChoices: [],
@@ -92,6 +92,18 @@ const store = createStore({
         },
         getBottom(state){
             return state.bottom
+        },
+        getEndLeft(state){
+            return state.endLeft
+        },
+        getVeryEndLeft(state){
+            return state.veryEndLeft
+        },
+        getEndRight(state){
+            return state.endRight
+        },
+        getVeryEndRight(state){
+            return state.veryEndRight
         },
         getStart(state){
             return state.start
@@ -179,6 +191,9 @@ const store = createStore({
         },
         neitherWinsIsTrue( { commit } ){
             commit('NEITHERWINS_IS_TRUE')
+        },
+        resetAll( { commit } ){
+            commit('RESET_ALL')
         }
         
 
@@ -221,248 +236,211 @@ const store = createStore({
             state.dominoes = _.shuffle(state.dominoes)
             return state.dominoes
         },
-        // tout remettre à zéro pour une nouvelle partie
-    CLEAR_ROUND(state){
-        state.board = []
-        state.player.hand = []
-        state.machine.hand = []
-        state.dominoes = []
-        state.lock = []
-        state.start = true
-        state.begin = []
-        state.left= []
-        state.top = []
-        state.right = []
-        state.bottom = []
-      
-      },
-    UPDATE_DOMINOES_AND_HANDS(state, payload){
-        state.player.hand = payload.player.value.hand
-        state.machine.hand = payload.machine.value.hand
-        state.dominoes = payload.dominoes.value
-        localStorage.setItem('player', JSON.stringify(state.player))
-        localStorage.setItem('machine', JSON.stringify(state.machine))
-    },
-    
-    SET_FIRST_VALUE_FOR_HEAD(state, domino){
-        state.head = domino.value.value[0]
-    },
-    SET_FIRST_VALUE_FOR_TAIL(state, domino){
-        state.tail = domino.value.value[1]
-    },
-    EVALUATE_PLAYER_CHOICES(state){
-        //console.log('EVALUATE PLAYER CHOICES', 'FIRST', first, 'LAST', last, 'PLAYER', player)
-        state.playerChoices = state.player.hand.filter( d => d.value[0] === state.first || d.value[0] === state.last || d.value[1] === state.first || d.value[1] === state.last )
-        for (let domino of state.playerChoices){
-            if ( domino.value[0] === state.first && domino.value[1] === state.last || domino.value[0] === state.last && domino.value[1] === state.first ){
-                domino.ambidextrous = true
-            }
-        }
+            
+        UPDATE_DOMINOES_AND_HANDS(state, payload){
+            state.player.hand = payload.player.value.hand
+            state.machine.hand = payload.machine.value.hand
+            state.dominoes = payload.dominoes.value
+            localStorage.setItem('player', JSON.stringify(state.player))
+            localStorage.setItem('machine', JSON.stringify(state.machine))
+        },
         
-    },
-    ADD_TO_BOARD(state, domino){
-        console.log('STORE DOMINO ADD TO BOARD BEGINS', 'PIECE', domino, 'BOARD', state.board)
-      if (!state.board.length) {
-        //state.begin.push(domino)
-        //state.board.push(domino)
-        domino.left = true
-      }
-      else { 
+        SET_FIRST_VALUE_FOR_HEAD(state, domino){
+            state.head = domino.value.value[0]
+        },
+        SET_FIRST_VALUE_FOR_TAIL(state, domino){
+            state.tail = domino.value.value[1]
+        },
+        EVALUATE_PLAYER_CHOICES(state){
+            console.log('EVALUATE PLAYER CHOICES', state.player.hand)
+            state.playerChoices = state.player.hand.filter( d => d.value[0] === state.first || d.value[0] === state.last || d.value[1] === state.first || d.value[1] === state.last )
 
-        console.log('COMPARING for left True or False', 'domino', domino, 'board', state.board, 'head', state.board[0].value[0])
-        if ( domino.value[0] === state.board[0].value[0] || domino.value[1] === state.board[0].value[0] ) domino.left = true
-        else domino.left = false
-
-        if (domino.left === true || domino.lefty === true) {
-            if (domino.value[1] !== state.board[0].value[0]) {
-                console.log('DOMINO BEFORE SWAP L', domino)
-                swap(domino)
-                console.log('SWAP LEFT!', domino)
+            for (let domino of state.playerChoices){
+                if (domino.ambidextrous === true) domino.ambidextrous = false
             }
-
-        }
-
-        if (domino.left === false || domino.lefty === false) {
-            if (domino.value[0] !== state.board[state.board.length-1].value[1]){
-            console.log('DOMINO BEFORE SWAP R', domino)  
-            swap(domino)
-            console.log('SWAP RIGHT!', domino)
+            if (state.first === state.last) {
+                for (let domino of state.playerChoices){
+                    domino.ambidextrous = true
+                }
+            }
+            else {
+                for (let domino of state.playerChoices){
+                    if ( domino.value[0] === state.first && domino.value[1] === state.last || domino.value[0] === state.last && domino.value[1] === state.first ){
+                        domino.ambidextrous = true
+                    }
+                }
             }
             
+        },
+        ADD_TO_BOARD(state, domino){
+            console.log('STORE DOMINO ADD TO BOARD BEGINS', 'PIECE', domino, 'BOARD', state.board)
+        if (!state.board.length) {
+            //state.begin.push(domino)
+            //state.board.push(domino)
+            domino.left = true
         }
-    }
+        else { 
 
-    if (state.board.length > 21){
-        if (domino.left === true) {
-            state.endEndLeft.push(domino)
-            state.board.unshift(domino)
-        }
-        else {
-            state.endEndRight.push(domino)
-            state.board.push(domino)
-        }
-    }
+            console.log('COMPARING for left True or False', 'domino', domino, 'board', state.board, 'head', state.board[0].value[0])
 
-    if (state.board.length <= 21 && state.board.length > 19) {
-        if (domino.left === true) {
-            state.endLeft.push(domino)
-            state.board.unshift(domino)
-        }
-        else {
-            state.endRight.push(domino)
-            state.board.push(domino)
-        }
-    
-    }
+            if (!domino.ambidextrous) {
+                if ( domino.value[0] === state.board[0].value[0] || domino.value[1] === state.board[0].value[0] ) domino.left = true
+                else domino.left = false
+            }
 
-    if (state.board.length <= 19 && state.board.length > 11) {
-        if (domino.left === true) {
-            state.top.push(domino)
-            state.board.unshift(domino)
-        }
-        else {
-            state.bottom.push(domino)
-            state.board.push(domino)
-        }
-    }
+            if (domino.left === true || domino.lefty === true) {
+                if (domino.value[1] !== state.board[0].value[0]) {
+                    console.log('DOMINO BEFORE SWAP L', domino)
+                    swap(domino)
+                    console.log('SWAP LEFT!', domino)
+                }
 
-    
-    if (state.board.length <= 11 && state.board.length > 8){
+            }
+
+            if (domino.left === false || domino.lefty === false) {
+                if (domino.value[0] !== state.board[state.board.length-1].value[1]){
+                console.log('DOMINO BEFORE SWAP R', domino)  
+                swap(domino)
+                console.log('SWAP RIGHT!', domino)
+                }
+                
+            }
+        }
+        // où placer le domino joué ?
         if (domino.left === true){
-            state.left.unshift(domino)
-            state.board.unshift(domino)
+            if (state.board.length <= 8) {
+                state.begin.unshift(domino)
+                state.board.unshift(domino)
+            }
+            else if (state.begin.length > 8 && state.left.length <= 2){
+                state.left.unshift(domino)
+                state.board.unshift(domino)
+            }
+            else if (state.left.length > 2 && state.top.length <= 8) {
+                state.top.push(domino)
+                state.board.unshift(domino)
+            }
+            else if (state.top.length > 8 && state.endLeft.length <= 1) {
+                state.endLeft.push(domino)
+                state.board.unshift(domino)
+            }
+            else if (state.endLeft.length > 1){
+                state.veryEndLeft.push(domino)
+                state.board.unshift(domino)
+            }
+        } if (domino.left === false) {
+            if (state.board.length <= 8) {
+                state.begin.push(domino)
+                state.board.push(domino)
+            }
+            else if (state.begin.length > 8 && state.right.length <= 2){
+                state.right.push(domino)
+                state.board.push(domino)
+            }
+            else if (state.right.length > 2 && state.bottom.length <= 8) {
+                state.bottom.push(domino)
+                state.board.push(domino)
+            }
+            else if (state.bottom.length > 8 && state.endRight.length <= 1) {
+                state.endRight.push(domino)
+                state.board.push(domino)
+            }
+            else if (state.endRight.length > 1){
+                state.veryEndRight.push(domino)
+                state.board.push(domino)
+            }
         }
-        else {
-            state.right.push(domino)
-            state.board.push(domino)
-        }
-    }
-    if (state.board.length <= 8) {
-        if (domino.left){
-            state.begin.unshift(domino)
-            state.board.unshift(domino)
-        }
-        else {
-            state.begin.push(domino)
-            state.board.push(domino)
-        }
-    }
-    /*
-      if (state.board.length >= 9) {
-        if (domino.left === true) {
-          if (state.left.length <= 2) {
-            state.left.unshift(domino)
-            state.board.unshift(domino)
-          }
-          if (state.left.length > 2 && state.top.length < 9) {
-            state.top.push(domino)
-            state.board.unshift(domino)
-          }
-          if (state.top.length >= 9 && state.endLeft.length < 2) {
-              state.endLeft.push(domino)
-              state.board.unshift(domino)
-          }
-          else {
-              state.endEndLeft.push(domino)
-              state.board.unshift(domino)
-          }
-        }
-        else {
-          if (state.right.length < 3) {
-            state.right.push(domino)
-            state.board.push(domino)
-          }
-          if (state.right.length >= 3 && state.bottom.length <= 9) {
-            state.bottom.push(domino)
-            state.board.push(domino)
-          }
-          if (state.bottom.length > 9 && state.endRight.length < 2){
-              state.endRight.push(domino)
-              state.board.push(domino)
-          }
-          else {
-              state.endEndRight.push(domino)
-              state.board.push(domino)
-          }
-        }
-      }
         
-      else {
-        if (domino.left){
-          state.begin.unshift(domino)
-          state.board.unshift(domino)
+        // à quelle main enelever le domino joué (joueur ou machine) ?
+            
+        if (domino.player === true) {
+            console.log('HAND OF PLAYER in STORE', state.player.hand, 'DOMINO', domino)
+            let domoP = state.player.hand.find(d => (d.value[0] === domino.value[0] && d.value[1] === domino.value[1]) || (d.value[0] === domino.value[1] && d.value[1] === domino.value[0]))
+            let indexP = state.player.hand.indexOf(domoP)
+            console.log('DOMO PLAYER SPLICED FOM HAND', domoP, indexP)
+            state.player.hand.splice(indexP, 1)
         }
         else {
-          state.begin.push(domino)
-          state.board.push(domino)
-        }
-      }
+            console.log('HAND OF MACHINE in STORE', state.machine.hand, 'DOMINO', domino)
+            let domoM = state.machine.hand.find(d => (d.value[0] === domino.value[0] && d.value[1] === domino.value[1]) || (d.value[0] === domino.value[1] && d.value[1] === domino.value[0]))
+            let indexM = state.machine.hand.indexOf(domoM)
+            console.log('DOMO MACHINE SPLICED FROM HAND', domoM, indexM)
+            state.machine.hand.splice(indexM, 1)
+            }
+        },
+        ADD_TO_LOCKS(state, newLocks){
 
-      */
-      // à quelle main enelever le domino joué (joueur ou machine) ?
-        
-      if (domino.player === true) {
-          console.log('HAND OF PLAYER in STORE', state.player.hand, 'DOMINO', domino)
-          let domoP = state.player.hand.find(d => (d.value[0] === domino.value[0] && d.value[1] === domino.value[1]) || (d.value[0] === domino.value[1] && d.value[1] === domino.value[0]))
-          let indexP = state.player.hand.indexOf(domoP)
-          console.log('DOMO PLAYER SPLICED FOM HAND', domoP, indexP)
-          state.player.hand.splice(indexP, 1)
-      }
-      else {
-          console.log('HAND OF MACHINE in STORE', state.machine.hand, 'DOMINO', domino)
-          let domoM = state.machine.hand.find(d => (d.value[0] === domino.value[0] && d.value[1] === domino.value[1]) || (d.value[0] === domino.value[1] && d.value[1] === domino.value[0]))
-          let indexM = state.machine.hand.indexOf(domoM)
-          console.log('DOMO MACHINE SPLICED FROM HAND', domoM, indexM)
-          state.machine.hand.splice(indexM, 1)
+            state.locks = [ ...state.locks, ...newLocks ]
+            state.locks = new Set(state.locks)
+        }, 
+        UPDATE_LOCKCHOICES(state, lockChoices){
+            state.lockChoices = [ ...lockChoices ]
+        },
+        // piocher
+        DRAW_ONE(state, side) {
+            if (side === 1) state.player.hand.push(state.dominoes[0])
+            if (side === 0) state.machine.hand.push(state.dominoes[0])
+            state.dominoes.shift()
+            console.log('STORE DRAWED!')
+        },
+        EVALUATE_POSSIBLE_LOCKS(state){
+            let knownDominoes = state.machine.hand.concat(state.board)
+            console.log('KNOWNDOMINOES', knownDominoes)
+            let valuedDominoes = knownDominoes.map( d => d.value )
+            console.log('VALUED DOMS', valuedDominoes)
+            let allValues = valuedDominoes.reduce( (acc, cur) => acc.concat(cur), [])
+            console.log('ALL VALUES', allValues)
+            let stats = allValues.reduce( (acc, cur) => {
+                if (!acc[cur]) acc[cur] = 1
+                else acc[cur]++
+                return acc
+                }, {}) 
+                console.log('WHERE ARE WE?', stats)
+            state.possibleLocks = Object.entries(stats).filter( d => d[1] > 4 )
+            
+            console.log('POSSIBLE LOCKS', state.possibleLocks)
+        },
+        SET_ALERT(state){
+            state.alert = true
+        },
+        UNSET_ALERT(state){
+            state.alert = false
+        },
+        PLAYERWINS_IS_TRUE(state){
+            state.playerWins = true
+        },
+        MACHINEWINS_IS_TRUE(state){
+            state.machineWins = true
+        },
+        NEITHERWINS_IS_TRUE(state){
+            state.neitherWins = true
+        },
+        RESET_ALL(state){
+                state.start = false
+                state.dominoes = []
+                state.board = []
+                state.first = undefined
+                state.last = undefined
+                state.begin = []
+                state.left = []
+                state.top = []
+                state.right = []
+                state.bottom = []
+                state.endLeft = []
+                state.veryEndLeft = []
+                state.endRight = []
+                state.veryEndRight = []
+                state.machineChoices = []
+                state.playerChoices = []
+                state.locks = []
+                state.possibleLocks = []
+                state.lockChoices = []
+                state.playerWins = false
+                state.machineWins = false
+                state.neitherWins = false
+                state.player.hand = []
+                state.machine.hand = []
         }
-    },
-    ADD_TO_LOCKS(state, newLocks){
-
-        state.locks = [ ...state.locks, ...newLocks ]
-        state.locks = new Set(state.locks)
-    }, 
-    UPDATE_LOCKCHOICES(state, lockChoices){
-        state.lockChoices = [ ...lockChoices ]
-    },
-    // piocher
-    DRAW_ONE(state, side) {
-        if (side === 1) state.player.hand.push(state.dominoes[0])
-        if (side === 0) state.machine.hand.push(state.dominoes[0])
-        state.dominoes.shift()
-        console.log('STORE DRAWED!')
-    },
-    EVALUATE_POSSIBLE_LOCKS(state){
-        let knownDominoes = state.machine.hand.concat(state.board)
-        console.log('KNOWNDOMINOES', knownDominoes)
-        let valuedDominoes = knownDominoes.map( d => d.value )
-        console.log('VALUED DOMS', valuedDominoes)
-        let allValues = valuedDominoes.reduce( (acc, cur) => acc.concat(cur), [])
-        console.log('ALL VALUES', allValues)
-        let stats = allValues.reduce( (acc, cur) => {
-            if (!acc[cur]) acc[cur] = 1
-            else acc[cur]++
-            return acc
-            }, {}) 
-            console.log('WHERE ARE WE?', stats)
-        state.possibleLocks = Object.entries(stats).filter( d => d[1] > 4 )
-        
-        console.log('POSSIBLE LOCKS', state.possibleLocks)
-    },
-    SET_ALERT(state){
-        state.alert = true
-    },
-    UNSET_ALERT(state){
-        state.alert = false
-    },
-    PLAYERWINS_IS_TRUE(state){
-        state.playerWins = true
-    },
-    MACHINEWINS_IS_TRUE(state){
-        state.machineWins = true
-    },
-    NEITHERWINS_IS_TRUE(state){
-        state.neitherWins = true
-    }
         
     },
     modules: {

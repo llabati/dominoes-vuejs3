@@ -1,48 +1,27 @@
 /* eslint-disable */
-//import store from '../store/index.js'
+
 import setScores from '../hooks/setScores.js'
 import swap from '../hooks/swap.js'
 //import updateScores from '../hooks/updateScores.js'
 export default {
-    //state: store.state,
-
-    // désigne la valeur gauche du domino placé à l'extrémité gauche du tapis de jeu
-    /*calculateHead: function(board, domino = undefined){
-        console.log('DOMINO for calculate head', domino, 'DOMINO [0]', domino[0])
-        let head
-        if(!board.length && domino){
-            head = domino[0]
-            console.log('HEAD FIRST', head)
-        }
-        else {
-            head = board[0][0]
-            console.log('HEAD', head)
-        }
-        return head
-    //    return store.state.board[0].value[0]
-    },
-    // désigne la valeur droite du domino placé à l'extrémité droite du tapis
-    calculateTail: function(board, domino = undefined){
-        let tail
-        if(!board.length && domino){
-            tail = domino[1]
-            console.log('TAIL FIRST', tail)
-        }
-        else {
-            tail = board[board.length-1][1]
-            console.log('TAIL', tail)
-        }
-        return tail
-     //   return store.state.board[store.state.board.length-1].value[1]
-    },
-*/
+    
     // évalue les choix du joueur
     evaluatePlayerChoices: function(player, first, last){
         console.log('EVALUATE PLAYER CHOICES', 'FIRST', first, 'LAST', last, 'PLAYER', player)
         let selection = player.value.hand.filter( d => d.value[0] === first || d.value[0] === last || d.value[1] === first || d.value[1] === last )
         for (let domino of selection){
-            if ( domino.value[0] === first && domino.value[1] === last || domino.value[0] === last && domino.value[1] === first ){
+            if (domino.ambidextrous === true) domino.ambidextrous = false
+        }
+        if (first === last) {
+            for (let domino of selection){
                 domino.ambidextrous = true
+            }
+        }
+        else {
+            for (let domino of selection){
+                if ( domino.value[0] === first && domino.value[1] === last || domino.value[0] === last && domino.value[1] === first ){
+                    domino.ambidextrous = true
+                }
             }
         }
         return selection
@@ -50,11 +29,10 @@ export default {
 
     // empêche la mise par le joueur sur le tapis de jeu d'un domino inadéquat
     warningWrongDomino: function(domino, first, last, wrong) {
-        console.log('DOMINO in CALCULATIONS.WARNING', domino)
-        if(domino[0] !== first && domino[0] !== last && domino[1] !== first && domino[1] !== last) {
-        console.log('WRONG DOMINO!')
-        wrong.value = true
-        //return this.chooseDomino(domino)
+        console.log('DOMINO in CALCULATIONS.WARNING', domino.value, 'FIRSTE ET LAST', first.value, last.value, 'FIRST ET LAST', first, last)
+        if(domino.value[0] !== first.value && domino.value[0] !== last.value && domino.value[1] !== first.value && domino.value[1] !== last.value) {
+            console.log('WRONG DOMINO!')
+            wrong.value = true
         }
     },
     

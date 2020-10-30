@@ -5,17 +5,17 @@
     .hor.hand#player-hand
         
         ul.flex-list(v-if="player.hand")
-            li(v-for="piece in player.hand" :key="piece.id" :class='{"mandatory": isStarter}')
+            li(v-for="piece in player.hand" :key="piece.id")
                 domino.domino-vert.active-domino(:value='piece.value' @chosen='chooseDomino(piece, undefined)')
         
-    selectDisplay(v-if='chooseSide' :message='message' v-on:place-to-left='left = true' v-on:place-to-right='left = false')
+    selectDisplay(v-if='sider' v-on:close='sider=false' v-on:place-to-left='chooseAmbidextrousDomino(domino, "left")' v-on:place-to-right='chooseAmbidextrousDomino(domino, "right")') Un de vos dominos peut être placé à gauche ou à droite. Pour ce domino seulement, utilisez les boutons ci-dessous.
     
 
-    alertsDisplay(v-if='alert' @clear-message ="message=''")
+    alertsDisplay(v-if='alert' @clear-message ="message=''" @go-next="nextRound")
 
     actionsButton(v-if='start' @launch='launch') démarrez le jeu
-    actionsButton(v-if='draw' @drawing='drawAgain(1)' style='margin: 20px auto;') piochez
-    actionsButton(v-if='stopDrawing' @stop='machinePlays' style='margin: 20px auto;') passez votre tour
+    actionsButton(v-if='draw' @drawing='drawAgain(1)') piochez
+    actionsButton(v-if='stopDrawing' @stop='machinePlays') passez votre tour
     
 
 
@@ -27,7 +27,6 @@
     import { ref, computed, reactive, watch, provide, inject } from 'vue'
     import store from '../store/index.js'
     import startingTheGame from '../hooks/startingTheGame.js'
-    //import leftOrRight from '../hooks/leftOrRight.js'
     import calculations from '../services/calculations.js'
     import Domino from './Domino.vue'
     import SelectDisplay from './SelectDisplay.vue'
@@ -75,6 +74,9 @@
             let stopDrawing = ref(false)
             provide('stopDrawing', stopDrawing)
 
+            let reset = ref(false)
+            provide('reset', reset)
+
             let continueDrawing = ref(false)
 
             let playerStarts = ref(false)
@@ -120,7 +122,7 @@
 
             let wrong = ref(false)
 
-            let chooseSide = ref(false)
+            let sider = ref(false)
 
             let player = computed(function(){
                 //console.log('PLAYER in PLAYERSCORNER', store.getters.getPlayer)
@@ -138,7 +140,12 @@
                     //message.value = name.value + ', vous avez gagné !'
                     //store.dispatch('setAlert')
                 }
-                store.dispatch('evaluatePlayerChoices')
+                else {
+                    store.dispatch('evaluatePlayerChoices')
+                    if (playerChoices.value.some(d => d.value[0] === first.value && d.value[1] === last.value || d.value[0] === last.value && d.value[1] === first.value)) {
+                        sider.value = true
+                    }
+                }
             })
             let machine = computed(function(){
                 return store.getters.getMachine
@@ -157,14 +164,21 @@
 
             let playerChoices = computed( () => store.getters.getPlayerChoices )
             watch(playerChoices, function() {
-                if (!playerChoices.value.length && playerHand.value.length) {
+                if (!playerChoices.value.length && !board.value.length) {
+                    draw.value = false
+                    console.log('STARTING...')
+                }
+                else if (!playerChoices.value.length && playerHand.value.length) {
                     let newLocks = [ first, last ]
                     store.dispatch('addToLocks', newLocks)
                     draw.value = true
                 }
-                if (!playerChoices.value.length && !playerHand.value.length) {
+                else if (!playerChoices.value.length && !playerHand.value.length && board.value.length) {
+                    draw.value = false
                     store.dispatch('playerWinsIsTrue')
                 }
+                if (playerChoices.value.length) draw.value = false
+                console.log('PLAYER CHOICES HAS CHANGED', playerChoices.value, 'DRAW', draw.value) 
                 
             })
 
@@ -194,7 +208,8 @@
             watch(restPieces, function(){
                 if (restPieces.value < 1){
                 draw.value = false
-                stopDrawing.value = true
+                stopDrawing = true
+                store.dispatch('evaluatePlayerChoices')
                 console.log('WATCHING RESTPIECES', 'MACHINE CHOICES', machineChoices.value, 'PLAYER CHOICES', playerChoices.value)
                 if (machineChoices.value.length < 1 && playerChoices.value.length < 1) {
                     keepPlaying.value = false
@@ -230,21 +245,16 @@
                 claimVictory()
             })
 
+            let generalPlayerScore = computed( () => store.getters.getPlayerScore)
+            let generalMachineScore = computed( () => store.getters.getMachineScore)
+
             const [ whoStarts, fullHand ] = startingTheGame()
 
 
             const launch = async function letsPlay(){
-                store.dispatch('unsetAlert')
-                message.value = ''
-                console.log('NAME', name.value)
-                console.log('PLAYER', player.value)
-                console.log('MACHINE', machine.value)
-                console.log('PLAYERHAND', playerHand.value)
-                console.log('MACHINEHAND', machineHand.value)
-                console.log('BOARD', board.value)
-                console.log('DOMINOES', dominoes.value)
-                console.log('MESSAGE', message.value)
-                console.log('RESTPIECES', restPieces.value)
+                //store.dispatch('unsetAlert')
+                //message.value = ''
+                
                 // Nous commençons la première manche. 
                 //Il faut déterminer qui va jouer en premier (celui qui a le double le plus élevé, ou à défaut, le domino le plus fort)
                 store.dispatch('unsetAlert')
@@ -315,58 +325,63 @@
 
         // c'est le joueur qui joue
         function chooseDomino(domino, side){
-            console.log('CHOOSE THIS DOMINO', domino.value)
+            console.log('CHOOSE THIS DOMINO')
             if (!board.value.length && player.value.isStarting === true) {
                 player.value.start.player = true
             }
+            // marquer ce domino comme le domino du joueur (pour l'enlever de la main du joueur)
             domino.player = true
-            //if (wrong.value) wrong.value = false
+            wrong.value = false
             
-
             // vérification que le domino choisi est bon
-            if (board.length > 1) {
-                calculations.warningWrongDomino(domino.value, first.value, last.value, wrong.value)
+            console.log('BOARD LENGTH', board.value.length)
+            if (board.value.length >= 1) {
+                calculations.warningWrongDomino(domino, first, last, wrong)
+                console.log('WARNING PASSED!', wrong.value)
                 if (wrong.value === true) {
                     message.value = 'Vous ne pouvez pas jouer ce domino !'
-                    alert.value = true
+                    store.dispatch('setAlert')
                     return
                 }
-            /*else{
-                // lorsqu'on a un domino qui peut être placé à gauche ou à droite*/
-                
-                if (domino.ambidextrous) {
-
-                    message.value = 'Vous pouvez placer ce domino à gauche ou à droite.'
-                    alert.value = true
-                    console.log('A GAUCHE OU A DROITE ?')
-
-                    if (side === 'left') domino.left = true
-                    if (side === 'right') domino.left = false
-                }
+            
             }
-            /*if ((domino.value[0] === board.value[0].value[0] && domino.value[1] === board.value[board.value.length-1].value[1]) || (domino.value[1] === board.value[0].value[0] && domino.value[0] === board.value[board.value.length-1].value[1])) {
-                message.value = 'Vous pouvez placer votre domino à gauche ou à droite. Choisissez !'
-                chooseSide.value = true
-                domino.side = lefty
-                store.dispatch('addToBoard', domino)
-                
-                }
-            }*/
-                    
-                
+            
 
             console.log('MON DOMINO', domino)
             store.dispatch('addToBoard', domino)
             
             keepPlaying.value = true
             console.log('KEEPPLAYING CHOOSEDOMINO', keepPlaying.value, 'UPTO', upto.value)
-            if (!playerHand.value.length) {
+            if (!playerHand.value.length && board.value.length) {
                 store.dispatch('playerWinsIsTrue')
             }
             else upto.value = !upto.value
         }
-        
-           
+
+        // choisir et placer comme on le souhaite un domino "gauche ou droite"
+        function chooseAmbidextrousDomino(side){
+            console.log('CHOOSE AMBIDEXTROUS DOMINO', side)
+
+            let domino = playerChoices.value.find( d => d.ambidextrous)
+            
+            domino.player = true
+
+            domino.left = side === "left" ? true : false
+            
+            console.log('MON DOMINO AMBIDEXTRE', domino)
+            
+            sider.value = false
+
+            store.dispatch('addToBoard', domino)
+            
+            keepPlaying.value = true
+            console.log('KEEPPLAYING CHOOSEDOMINO', keepPlaying.value, 'UPTO', upto.value)
+            if (!playerHand.value.length && board.value.length) {
+                store.dispatch('playerWinsIsTrue')
+            }
+            else upto.value = !upto.value
+
+        }
         
         ////////////////////////////////////////////////////////////////
 
@@ -478,16 +493,12 @@
                     console.log('BOARD', board.value)
                     console.log('HEAD AND TAIL PLAYER', first.value, last.value)
                     console.log('KEEPPLAYING MACHINEPLAYS END TO PLAYER', keepPlaying.value)
-                    playerChoices.value = calculations.evaluatePlayerChoices(player, first.value, last.value)
+                    store.dispatch('evaluatePlayerChoices')
                     console.log('PLAYER CHOICES', playerChoices.value)
                     if (!playerChoices.value.length) draw.value = true
                     else {
-                        for (let domino of playerChoices.value){
-                            if ( domino.value[0] === first.value && domino.value[1] === last.value || domino.value[0] === last.value && domino.value[1] === first.value ){
-                                
-                                
-                                domino.ambidextrous = true
-                            }
+                        if (playerChoices.value.some(d => d.value[0] === first.value && d.value[1] === last.value || d.value[0] === last.value && d.value[1] === first.value)) {
+                        sider.value = true
                         }
                     }
                 }
@@ -499,7 +510,7 @@
             // si lapioche est vide
             if (dominoes.value.length === 0) {
                 draw.value = false
-                stopDrawing.value = true
+                stopDrawing = true
                 upto.value = !upto.value
             }
             // si c'est le joueur humain qui pioche (bouton 'DRAW')
@@ -507,11 +518,15 @@
                 //locked.value = true
                 store.dispatch('drawOne', side)
                 store.dispatch('evaluatePlayerChoices')
-                //playerChoices = store.getters.getPlayerChoices
+                
                 console.log('PLAYERCHOICES VALUE', playerChoices.value.length)
-                //let newHand = calculations.evaluatePlayerChoices(player, first.value, last.value)
+                
                 if (playerChoices.value.length) {
                     draw.value = false
+                    if (playerChoices.value.some(domino => domino.ambidextrous)) {
+                        sider.value = true
+
+                    }
                     return player.value.hand
                 }
             }
@@ -571,8 +586,9 @@
 
         // afficher le résultat de la partie
     function claimVictory(){
+        console.log('ENTERING CLAIM VICTORY...', playerWins.value, machineWins.value, neitherWins.value)
         draw.value = false
-        stopDrawing.value = false
+        stopDrawing = false
         let results = { neitherWins: neitherWins.value, playerWins: playerWins.value, machineWins: machineWins.value, player: playerHand.value, machine: machineHand.value }
         let finalTotal = calculations.calculateScores(results)
         let victory = {}
@@ -590,37 +606,65 @@
                 message.value = 'Les deux joueurs sont bloqués. Pas de vainqueur pour cette manche.'
             }
         }
-        if (playerWins.value === true) {
+        if (playerWins.value === true && machineWins.value === false) {
             message.value = "Bravo, "+ name.value + ", vous gagnez avec " + finalTotal + " points !"
             victory.player = true
             victory.score = finalTotal
         }
-        if (machineWins.value === true) {
+        if (machineWins.value === true && playerWins.value === false) {
             message.value = "C'est la machine qui gagne, avec "+ finalTotal + " points !"
             victory.score = finalTotal
         }
         store.dispatch('setAlert')
         store.dispatch('updateRound')
         store.dispatch('updateScore', victory)
-        console.log('ROUND #', round.value)
+        reset.value = true
+        console.log('ROUND #', round.value, 'PLAYER', player.value, 'MACHINE', machine.value)
+
         
         }
 
+        // passer au tour suivant
+        async function nextRound(){
+            await resetAll()
+            message.value = `MANCHE N°${round.value} *** JOUEUR : ${generalPlayerScore.value} -- MACHINE : ${generalMachineScore.value}`
+            store.dispatch('setAlert')
+            launch()
+        }
 
+        function resetAll(){
+            //store.dispatch('setStartToTrue')
+            store.dispatch('resetAll')
+            keepPlaying.value = true
+            draw.value = false
+            stopDrawing = false
+            reset.value = false
+            continueDrawing.value = false
+            playerStarts.value = false
+            machineStarts.value = false
+            upto.value = false
+            locked.value = false
+            select.value = false
+            message.value = ''
+            wrong.value = false
+            sider.value = false
+            machineChoices.value = []
+        }
       
 
         
 
             return { 
-                name, start, round, stuck, keepPlaying, draw, stopDrawing, continueDrawing, round, upto, chooseSide,
+                name, start, round, stuck, keepPlaying, draw, stopDrawing, continueDrawing, round, upto, sider,
                 player, machine, playerHand, machineHand, board, newLocks, possibleLocks, 
-                alert, select, message, launch, whoStarts, fullHand, dominoes, restPieces, 
+                generalPlayerScore, generalMachineScore, 
+                alert, select, message, reset, launch, whoStarts, fullHand, dominoes, restPieces, 
                 playerChoices, machineChoices, playerWins, machineWins, neitherWins, 
-                chooseDomino, machinePlays, makeChoice, drawAgain, claimVictory, calculations 
+                chooseDomino, chooseAmbidextrousDomino, machinePlays, makeChoice, drawAgain, claimVictory, nextRound, calculations 
                 }
         
-        
-    }
+        }   
+    
 }
 </script>
 <style>

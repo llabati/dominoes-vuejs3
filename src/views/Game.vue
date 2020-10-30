@@ -19,22 +19,11 @@ export default {
   store,
 
   setup(){
-    //const name = ref('')
-    /*const start = computed( function(){
-      console.log('THE REAL START', store.getters.getStart)
-      store.getters.getStart
-    })*/
-    //let start = ref(false)
-    //provide('name', name)
-    //provide('start', start)
 
     let launch = ref(false)
     provide('launch', launch)
 
     const currentPlayer = function nameThisPlayer(name){
-      //name = name
-      //start.value = true
-      //store.dispatch('setStartToTrue')
       store.dispatch('addPlayer', name)
       console.log('NAME ADDED!', name)
       store.dispatch('setStartToTrue')

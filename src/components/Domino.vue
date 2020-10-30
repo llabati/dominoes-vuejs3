@@ -1,5 +1,5 @@
 <template>
-    <div @click="choose">
+    <div id="piece" @click="choose">
         <img v-if="value[0] === 1 && value[1] === 0" class="domino domino-swap" src="../assets/0-1.png">
         <img v-if="value[0] === 2 && value[1] === 0" class="domino domino-swap" src="../assets/0-2.png">
         <img v-if="value[0] === 3 && value[1] === 0" class="domino domino-swap" src="../assets/0-3.png">
@@ -76,10 +76,17 @@ export default {
 </script>
 
 <style>
-
+#piece {
+    width: 82px;
+    height: 42px;
+    margin: 0px;
+    padding: 0px;
+}
 .domino {
     height: 40px;
     width: 80px;
+    margin: 0px;
+    padding: 0px;
     border: solid 1px black;
 }
 .domino-vert {

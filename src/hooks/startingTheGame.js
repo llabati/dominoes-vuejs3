@@ -14,7 +14,6 @@ export default function startingTheGame(){
           for (let dom of machine.value.hand) {
               dom.total = dom.value[0] + dom.value[1]
               dom.double = dom.value[0] == dom.value[1] ? true : false
-              console.log('DOM in STARTINGTHEGAME', dom) // dom est un Proxy
           }
           let doublesM = machine.value.hand.filter(d => d.double)
           doublesM.sort( (a,b) => b.total - a.total)

@@ -1,35 +1,32 @@
 <template lang="pug">
     
 .board(v-if='launch')
-    
     #top
         ul.flex-top-list
             li(v-for="piece in top" :key="piece.id" class="domino-mid")
                 domino(:value='piece.value' :class='{ "domino-vert": piece.isDouble, "domino-swap": piece.swap }')
-        
-    #left
+    #left    
         ul.flex-left-list
-            li(v-for="piece in left" :key="piece.id" style='margin: 30px' class="domino-vert domino-swap")
+            li.vert(v-for="piece in left" :key="piece.id" class="domino-vert domino-swap")
                 domino(:value='piece.value' :class='{ "domino-vert": piece.isDouble, "domino-swap": piece.swap }')
 
     #end-left
         ul.flex-end-left-list
-            li(v-for="piece in endLeft" :key="piece.id" style='margin: 30px' class="domino-vert domino-swap")
+            li.vert(v-for="piece in endLeft" :key="piece.id" class="domino-vert domino-swap")
                 domino(:value='piece.value' :class='{ "domino-vert": piece.isDouble, "domino-swap": piece.swap }')
     
-    #end-end-left
+    #very-end-left
         ul.flex-bottom-list
-            li(v-for="piece in endEndLeft" :key="piece.id" class="domino-quart")
+            li(v-for="piece in veryEndLeft" :key="piece.id" class="domino-quart")
                 domino(:value='piece.value' :class='{ "domino-vert": !piece.isDouble ,"domino-swap": piece.swap }')
 
     #begin
         ul.flex-list
             li(v-for="piece in begin" :key="piece.id")
                 domino(:value='piece.value' :class='{ "domino-vert": piece.isDouble, "domino-swap": piece.swap }')
-        
-    #right
+    #right    
         ul.flex-right-list
-            li(v-for="piece in right" :key="piece.id" style='margin: 30px' class='domino-vert domino-swap')
+            li.vert(v-for="piece in right" :key="piece.id" class='domino-vert domino-swap')
                 domino(:value='piece.value' :class='{ "domino-vert": piece.isDouble, "domino-swap": piece.swap }')
         
     #bottom
@@ -39,12 +36,12 @@
 
     #end-right
         ul.flex-end-right-list
-            li(v-for="piece in endRight" :key="piece.id" style='margin: 30px' class="domino-vert domino-swap")
+            li.vert(v-for="piece in endRight" :key="piece.id" class="domino-vert domino-swap")
                 domino(:value='piece.value' :class='{ "domino-vert": piece.isDouble, "domino-swap": piece.swap }')
 
-    #end-end-right
+    #very-end-right
         ul.flex-list
-            li(v-for="piece in endEndRight" :key="piece.id")
+            li(v-for="piece in veryEndRight" :key="piece.id")
                 domino(:value='piece.value' :class='{ "domino-vert": piece.isDouble, "domino-swap": piece.swap }')
         
 
@@ -83,8 +80,8 @@ export default {
             return store.getters.getEndLeft
         })
 
-        const endEndLeft = computed( function(){
-            return store.getters.getEndEndLeft
+        const veryEndLeft = computed( function(){
+            return store.getters.getVeryEndLeft
         })
         
         const right = computed( function(){
@@ -99,8 +96,8 @@ export default {
             return store.getters.getEndRight
         })
 
-        const endEndRight = computed( function(){
-            return store.getters.getEndEndRight
+        const veryEndRight = computed( function(){
+            return store.getters.getVeryEndRight
         })
         
         const board = computed( function(){
@@ -109,7 +106,7 @@ export default {
         })
         watch(board, () => console.log('BOARD HAS ONE MORE!', board.value))
 
-        return { launch, store, begin, left, top, endLeft, endEndLeft, right, bottom, endRight, endEndRight, board }
+        return { launch, store, begin, left, top, endLeft, veryEndLeft, right, bottom, endRight, veryEndRight, board }
         
     }
     
@@ -128,13 +125,32 @@ export default {
     padding: 30px;
     display: grid;
     grid-template-columns: repeat(8, 12.5%);
-    grid-template-rows: repeat(11, 80px);
+    grid-template-rows: repeat(10, 80px);
+}
+ul {
+    margin: 0px;
+    padding: 0px;
+    margin-block-start: 0px;
+    margin-block-end: 0px;
+}
+li {
+    
+    margin: 0px;
+    padding: 0px;
+}
+/*.hor {
+    width: 96px;
+    height: 45px;
+}*/
+.vert {
+    width: 45px;
+    height: 96px;
 }
 
 .flex-list {
     list-style-type: none;
-    margin: none;
-    padding: none;
+    margin: 0px;
+    padding: 0px;
     display: flex;
     flex-direction: row;
     justify-content: center;
@@ -144,7 +160,7 @@ export default {
     list-style-type: none;
     display: flex;
     flex-direction: column;
-    justify-content: flex-end;
+    justify-content: flex-start;
 }
 .flex-right-list {
     list-style-type: none;
@@ -160,8 +176,8 @@ export default {
 }
 .flex-top-list {
     list-style-type: none;
-    margin: none;
-    padding: none;
+    margin: 0px;
+    padding: 0px;
     display: flex;
     flex-direction: row;
     justify-content: left;
@@ -169,8 +185,8 @@ export default {
 }
 .flex-bottom-list {
     list-style-type: none;
-    margin: none;
-    padding: none;
+    margin: 0px;
+    padding: 0px;
     display: flex;
     flex-direction: row-reverse;
     justify-content: right;
@@ -184,53 +200,58 @@ export default {
 }
 #end-left {
     grid-column: 7 / 8;
-    grid-row: 2 / 5;
-    border: solid 1px white;
+    grid-row: 2 / 4;
 }
-#end-end-left {
+#very-end-left {
     grid-column: 4 / 7;
-    grid-row: 4 / 5;
-    border: solid 1px white;
+    grid-row: 3 / 4;
 }
 #top {
     grid-column: 2 / 8;
     grid-row: 1 / 2;
     border: solid 1px white;
-    /*justify-items: start;*/
+    margin: 0px;
+    padding: 0px;
     
 }
 #left {
-    /*justify-items: start;*/
+    /*justify-items: end;*/
     /*align-items: center;*/
     grid-column: 2 / 3;
-    grid-row: 2 / 6;
+    grid-row: 1 / 4;
     border: solid 1px white;
+    margin: 0px;
+    padding: 0px;
 
 }
 #begin {
     grid-column: 2 / 8;
-    grid-row: 6 / 7;
+    grid-row: 4 / 5;
     border: solid 1px white;
+    margin: 0px;
+    padding: 0px;
 }
 #right {
     grid-column: 7 / 8;
-    grid-row: 7 / 11;
+    grid-row: 4 / 7;
     border: solid 1px white;
+    margin: 0px;
+    padding: 0px;
 }
 #bottom {
     grid-column: 2 / 8;
-    grid-row: 11 / 12;
+    grid-row: 7 / 8;
     border: solid 1px white;
+    margin: 0px;
+    padding: 0px;
 }
 #end-right {
     grid-column: 2 / 3;
-    grid-row: 8 / 11;
-    border: solid 1px white;
+    grid-row: 8 / 9;
 }
-.end-end-right {
+.very-end-right {
     grid-column: 3 / 6;
     grid-row: 8 / 9;
-    border: solid 1px white;
 }
 .piece {
     width: 80px;
