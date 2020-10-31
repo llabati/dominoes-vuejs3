@@ -23,12 +23,11 @@
     #begin
         ul.flex-list
             li(v-for="piece in begin" :key="piece.id")
-                domino(:value='piece.value' :class='{ "domino-vert": piece.isDouble, "domino-swap": piece.swap }')
+                domino(:value='piece.value' :class='{ "domino-vert": piece.isDouble, "domino-swap": piece.swap }')            
     #right    
         ul.flex-right-list
             li.vert(v-for="piece in right" :key="piece.id" class='domino-vert domino-swap')
-                domino(:value='piece.value' :class='{ "domino-vert": piece.isDouble, "domino-swap": piece.swap }')
-        
+                domino(:value='piece.value' :class='{ "domino-vert": piece.isDouble, "domino-swap": piece.swap }')    
     #bottom
         ul.flex-bottom-list
             li(v-for="piece in bottom" :key="piece.id" class="domino-inverse")
@@ -160,7 +159,7 @@ li {
     list-style-type: none;
     display: flex;
     flex-direction: column;
-    justify-content: flex-start;
+    justify-content: flex-end;
 }
 .flex-right-list {
     list-style-type: none;
@@ -218,7 +217,7 @@ li {
     /*justify-items: end;*/
     /*align-items: center;*/
     grid-column: 2 / 3;
-    grid-row: 1 / 4;
+    grid-row: 2 / 5;
     border: solid 1px white;
     margin: 0px;
     padding: 0px;
@@ -226,21 +225,21 @@ li {
 }
 #begin {
     grid-column: 2 / 8;
-    grid-row: 4 / 5;
+    grid-row: 5 / 6;
     border: solid 1px white;
     margin: 0px;
     padding: 0px;
 }
 #right {
     grid-column: 7 / 8;
-    grid-row: 4 / 7;
+    grid-row: 6 / 9;
     border: solid 1px white;
     margin: 0px;
     padding: 0px;
 }
 #bottom {
     grid-column: 2 / 8;
-    grid-row: 7 / 8;
+    grid-row: 9 / 10;
     border: solid 1px white;
     margin: 0px;
     padding: 0px;

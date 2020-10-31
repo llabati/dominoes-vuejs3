@@ -8,10 +8,10 @@
             li(v-for="piece in player.hand" :key="piece.id")
                 domino.domino-vert.active-domino(:value='piece.value' @chosen='chooseDomino(piece, undefined)')
         
-    selectDisplay(v-if='sider' v-on:close='sider=false' v-on:place-to-left='chooseAmbidextrousDomino(domino, "left")' v-on:place-to-right='chooseAmbidextrousDomino(domino, "right")') Un de vos dominos peut être placé à gauche ou à droite. Pour ce domino seulement, utilisez les boutons ci-dessous.
+    selectDisplay(v-if='sider' v-on:close='sider=false' v-on:place-to-left='chooseAmbidextrousDomino("left")' v-on:place-to-right='chooseAmbidextrousDomino("right")') Un de vos dominos peut être placé à gauche ou à droite. Pour ce domino seulement, utilisez les boutons ci-dessous.
     
 
-    alertsDisplay(v-if='alert' @clear-message ="message=''" @go-next="nextRound")
+    alertsDisplay(v-if='alert' @clear-message ="message=''" @go-next="nextRound" @next-please="launch")
 
     actionsButton(v-if='start' @launch='launch') démarrez le jeu
     actionsButton(v-if='draw' @drawing='drawAgain(1)') piochez
@@ -140,12 +140,13 @@
                     //message.value = name.value + ', vous avez gagné !'
                     //store.dispatch('setAlert')
                 }
-                else {
+                /*else {
                     store.dispatch('evaluatePlayerChoices')
-                    if (playerChoices.value.some(d => d.value[0] === first.value && d.value[1] === last.value || d.value[0] === last.value && d.value[1] === first.value)) {
+                    //if (playerChoices.value.some(d => d.value[0] === first.value && d.value[1] === last.value || d.value[0] === last.value && d.value[1] === first.value)) {
+                    if (playerChoices.value.some(d => d.ambidextrous)) {
                         sider.value = true
                     }
-                }
+                }*/
             })
             let machine = computed(function(){
                 return store.getters.getMachine
@@ -177,7 +178,8 @@
                     draw.value = false
                     store.dispatch('playerWinsIsTrue')
                 }
-                if (playerChoices.value.length) draw.value = false
+                else if (playerChoices.value.length) draw.value = false
+                
                 console.log('PLAYER CHOICES HAS CHANGED', playerChoices.value, 'DRAW', draw.value) 
                 
             })
@@ -248,6 +250,9 @@
             let generalPlayerScore = computed( () => store.getters.getPlayerScore)
             let generalMachineScore = computed( () => store.getters.getMachineScore)
 
+            let newRound = ref(false)
+            provide('newRound', newRound)
+
             const [ whoStarts, fullHand ] = startingTheGame()
 
 
@@ -273,7 +278,7 @@
                 console.log('ROUND', round.value, 'STUCK', stuck.value)
                 
                 if (round.value === 1 || stuck.value) {
-                    let starter = whoStarts(player, machine, 0)
+                    let starter = whoStarts(player, machine, 1)
                     console.log('THE STARTER', starter)
                     console.log('THE PLAYERS', player, machine, round, 'START', start)
                     store.dispatch('setStartToFalse')
@@ -283,7 +288,7 @@
                         playerStarts.value = true
                         let firstDomino = player.value.hand.find( d => d.value == player.value.start.value)
                         firstDomino.isStarter = true
-                        message.value = `C'est vous qui commencez ! Cliquez sur le domino de votre choix; il se placera automatiquement sur le tapis.`
+                        message.value = `C'est vous qui commencez, ${name.value} ! Cliquez sur le domino de votre choix; il se placera automatiquement sur le tapis.`
                         store.dispatch('setAlert')
                         }
                     else {
@@ -295,10 +300,11 @@
                     
                 }
             if (round.value > 1) {
-                console.log('THIS ROUND', round)
+                console.log('THIS ROUND', round.value)
                 name.value = store.getters.getName
-                await store.dispatch('setStartToTrue')
-                await progression.startGame()
+                await store.dispatch('setStartToFalse')
+                let starter = whoStarts(player, machine, round.value)
+                context.emit('play')
                 
                 let machine_recent_winning = store.getters['gameModule/getMachineRecentWinning'] 
                 let player_recent_winning = store.getters['gameModule/getPlayerRecentWinning']
@@ -390,6 +396,7 @@
         function machinePlays(){
             console.log('MACHINE IS PLAYING', keepPlaying.value)
             if (!board.value.length && machine.value.isStarting === true){
+            console.log('MACHINE START', machine.value.start)
             console.log(`Machine is starting with ${machine.value.start.value[0]} ${machine.value.start.value[1]}`)
             //this.board = new Board(this.machine.start.value[0], this.machine.start.value[1])
             //display.addAPiece(this.machine.start, null)
@@ -595,6 +602,7 @@
         if (neitherWins.value === true) {
             if (finalTotal > 0) {
                 message.value = 'Les deux joueurs sont bloqués, mais c\'est la machine qui gagne, avec ' + finalTotal + " points."
+                victory.player = false
                 victory.score = finalTotal
             }
             if (finalTotal < 0) {
@@ -624,12 +632,13 @@
         
         }
 
-        // passer au tour suivant
+        // conclure, avant de passer au tour suivant
         async function nextRound(){
             await resetAll()
-            message.value = `MANCHE N°${round.value} *** JOUEUR : ${generalPlayerScore.value} -- MACHINE : ${generalMachineScore.value}`
+            message.value = `MANCHE N°${round.value} // ${player.name} : ${generalPlayerScore.value} -- MACHINE : ${generalMachineScore.value}`
             store.dispatch('setAlert')
-            launch()
+            nextRound.value = true
+            setTimeout(launch, 5000)
         }
 
         function resetAll(){
@@ -648,6 +657,7 @@
             message.value = ''
             wrong.value = false
             sider.value = false
+            newRound.value = false
             machineChoices.value = []
         }
       

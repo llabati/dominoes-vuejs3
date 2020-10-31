@@ -6,7 +6,7 @@ export default function startingTheGame(){
 
     console.log('WHO ?', player, round)
     let starter
-    if (round === 0) {
+    if (round === 1) {
         // y a t il des doubles => filtrer le tableau et prendre le double le plus haut
         // si pas de double, prendre le "total" le plus élevé
         console.log('MACHINE HAND', machine.value.hand)

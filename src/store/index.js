@@ -258,18 +258,21 @@ const store = createStore({
             for (let domino of state.playerChoices){
                 if (domino.ambidextrous === true) domino.ambidextrous = false
             }
-            if (state.first === state.last) {
+            /*if (state.first === state.last) {
                 for (let domino of state.playerChoices){
                     domino.ambidextrous = true
                 }
             }
-            else {
-                for (let domino of state.playerChoices){
-                    if ( domino.value[0] === state.first && domino.value[1] === state.last || domino.value[0] === state.last && domino.value[1] === state.first ){
-                        domino.ambidextrous = true
-                    }
+            else { */
+            let focus = state.playerChoices.find( domino => domino.value[0] === state.first && domino.value[1] === state.last || domino.value[0] === state.last && domino.value[1] === state.first)
+            if (focus) focus.ambidextrous = true
+            /*
+            for (let domino of state.playerChoices){
+                if ( (domino.value[0] === state.first && domino.value[1] === state.last) || (domino.value[0] === state.last && domino.value[1] === state.first) ){
+                    domino.ambidextrous = true
                 }
-            }
+            } */
+           // }
             
         },
         ADD_TO_BOARD(state, domino){

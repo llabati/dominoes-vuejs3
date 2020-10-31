@@ -53,9 +53,11 @@ export default {
     },
     mutations: {
         UPDATE_ROUND(state){
-            state.round = state.round ++
+            state.round++
+            console.log('UPDATE ROUND', state.round)
         },
         UPDATE_SCORE(state, payload){
+            console.log('QUEL STATE ?', state)
             if (!payload.score) {
                 state.stuck = true
             }
