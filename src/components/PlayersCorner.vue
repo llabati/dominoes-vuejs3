@@ -462,7 +462,7 @@
                             console.log('KEEPPLAYING MACHINE PLAYS NOCHOICE', keepPlaying.value)
                         } else {
                             continueDrawing.value = true
-                            while (continueDrawing.value && dominoes.value.length > 0) {
+                            if (continueDrawing.value && dominoes.value.length > 0) {
                                 drawAgain(0)
 
                                 let newPiece = machine.value.hand[machine.value.hand.length-1]
@@ -473,7 +473,7 @@
                                 machineChoices.value.push(newPiece)
                                 continueDrawing.value = false
 
-                                console.log('MACHINECHOICES AFTER DRAWING', machineChoices.value)
+                                console.log('MACHINECHOICES HAS A NEW SOLUION AFER DRAWIN', machineChoices.value)
                                 }
                                 else drawAgain(0)
                             }
@@ -545,6 +545,7 @@
                 }
                 if (stopDrawing.value === false) {
                     store.dispatch('drawOne', side)
+                    console.log('DRAW ONE O HE SORE')
                     return machine.value.hand
                 }
             }
@@ -621,6 +622,7 @@
         }
         if (machineWins.value === true && playerWins.value === false) {
             message.value = "C'est la machine qui gagne, avec "+ finalTotal + " points !"
+            victory.player = false
             victory.score = finalTotal
         }
         store.dispatch('setAlert')
@@ -635,7 +637,7 @@
         // conclure, avant de passer au tour suivant
         async function nextRound(){
             await resetAll()
-            message.value = `MANCHE N°${round.value} // ${player.name} : ${generalPlayerScore.value} -- MACHINE : ${generalMachineScore.value}`
+            message.value = `MANCHE N°${round.value} ====== ${player.value.name} : ${generalPlayerScore.value} -- MACHINE : ${generalMachineScore.value} || 0`
             store.dispatch('setAlert')
             nextRound.value = true
             setTimeout(launch, 5000)

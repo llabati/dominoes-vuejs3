@@ -19,8 +19,14 @@ const store = createStore({
             last: undefined,
             begin: [],
             left: [],
+            leftOne: [],
+            leftTwo: [],
+            leftThree: [],
             top: [],
             right: [],
+            rightOne: [],
+            rightTwo: [],
+            rightThree: [],
             bottom: [],
             endLeft: [],
             veryEndLeft: [],
@@ -83,12 +89,32 @@ const store = createStore({
             console.log('LEFT', state.left)
             return state.left
         },
+        getLeftOne(state){
+            console.log('LEFT ONE', state.leftOne)
+            return state.leftOne
+        },
+        getLeftTwo(state){
+            return state.leftTwo
+        },
+        getLeftThree(state){
+            return state.leftThree
+        },
         getTop(state){
             console.log('TOP', state.top)
             return state.top
         },
         getRight(state){
             return state.right
+        },
+        getRightOne(state){
+            console.log('RIGHT ONE', state.rightOne)
+            return state.rightOne
+        },
+        getRightTwo(state){
+            return state.rightTwo
+        },
+        getRightThree(state){
+            return state.rightThree
         },
         getBottom(state){
             return state.bottom
@@ -315,14 +341,32 @@ const store = createStore({
                 state.begin.unshift(domino)
                 state.board.unshift(domino)
             }
-            else if (state.begin.length > 8 && state.left.length <= 2){
-                state.left.unshift(domino)
+            /*else if (state.begin.length > 8 && state.left.length <= 2){
+                state.left.push(domino)
+                state.board.unshift(domino)
+            }*/
+            else if (state.begin.length > 8 && !state.leftOne.length){
+                state.leftOne.push(domino)
                 state.board.unshift(domino)
             }
-            else if (state.left.length > 2 && state.top.length <= 8) {
+            else if (state.begin.length > 8 && state.leftOne.length && !state.leftTwo.length){
+                state.leftTwo.push(domino)
+                state.board.unshift(domino)
+            }
+            
+            else if (state.leftTwo.length && !state.leftThree.length){
+                state.leftThree.push(domino)
+                state.board.unshift(domino)
+            }
+            else if (state.leftThree.length && state.top.length <= 8) {
                 state.top.push(domino)
                 state.board.unshift(domino)
             }
+            /*
+            else if (state.left.length > 2 && state.top.length <= 8) {
+                state.top.push(domino)
+                state.board.unshift(domino)
+            } */
             else if (state.top.length > 8 && state.endLeft.length <= 1) {
                 state.endLeft.push(domino)
                 state.board.unshift(domino)
@@ -336,14 +380,33 @@ const store = createStore({
                 state.begin.push(domino)
                 state.board.push(domino)
             }
-            else if (state.begin.length > 8 && state.right.length <= 2){
+            /*else if (state.begin.length > 8 && state.right.length <= 2){
                 state.right.push(domino)
                 state.board.push(domino)
             }
-            else if (state.right.length > 2 && state.bottom.length <= 8) {
+            */
+            else if (state.begin.length > 8 && !state.rightOne.length){
+                state.rightOne.push(domino)
+                state.board.push(domino)
+            }
+            else if (state.begin.length > 8 && state.rightOne.length && !state.rightTwo.length){
+                state.rightTwo.push(domino)
+                state.board.push(domino)
+            }
+            
+            else if (state.rightTwo.length && !state.rightThree.length){
+                state.rightThree.push(domino)
+                state.board.push(domino)
+            }
+            else if (state.rightThree.length && state.bottom.length <= 8) {
                 state.bottom.push(domino)
                 state.board.push(domino)
             }
+            
+            /*else if (state.right.length > 2 && state.bottom.length <= 8) {
+                state.bottom.push(domino)
+                state.board.push(domino)
+            } */
             else if (state.bottom.length > 8 && state.endRight.length <= 1) {
                 state.endRight.push(domino)
                 state.board.push(domino)
@@ -419,30 +482,36 @@ const store = createStore({
             state.neitherWins = true
         },
         RESET_ALL(state){
-                state.start = false
-                state.dominoes = []
-                state.board = []
-                state.first = undefined
-                state.last = undefined
-                state.begin = []
-                state.left = []
-                state.top = []
-                state.right = []
-                state.bottom = []
-                state.endLeft = []
-                state.veryEndLeft = []
-                state.endRight = []
-                state.veryEndRight = []
-                state.machineChoices = []
-                state.playerChoices = []
-                state.locks = []
-                state.possibleLocks = []
-                state.lockChoices = []
-                state.playerWins = false
-                state.machineWins = false
-                state.neitherWins = false
-                state.player.hand = []
-                state.machine.hand = []
+            state.start = false
+            state.dominoes = []
+            state.board = []
+            state.first = undefined
+            state.last = undefined
+            state.begin = []
+            state.left = []
+            state.leftOne = []
+            state.leftTwo = []
+            state.leftThree = []
+            state.top = []
+            state.right = []
+            state.rightOne = []
+            state.rightTwo = []
+            state.rightThree = []
+            state.bottom = []
+            state.endLeft = []
+            state.veryEndLeft = []
+            state.endRight = []
+            state.veryEndRight = []
+            state.machineChoices = []
+            state.playerChoices = []
+            state.locks = []
+            state.possibleLocks = []
+            state.lockChoices = []
+            state.playerWins = false
+            state.machineWins = false
+            state.neitherWins = false
+            state.player.hand = []
+            state.machine.hand = []
         }
         
     },

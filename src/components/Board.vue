@@ -1,14 +1,27 @@
 <template lang="pug">
     
 .board(v-if='launch')
-    #top
+    //#top
         ul.flex-top-list
             li(v-for="piece in top" :key="piece.id" class="domino-mid")
                 domino(:value='piece.value' :class='{ "domino-vert": piece.isDouble, "domino-swap": piece.swap }')
-    #left    
+    #top.flex-top-list
+        //domino(v-for="piece in top" :key="piece.id" :value='piece.value' class="domino-mid" :class='{ "domino-vert": piece.isDouble, "domino-swap": piece.swap }')
+        domino(v-for="piece in top" :key="piece.id" :value='piece.value' class="domino-inverse" :class='{ "domino-vert": piece.isDouble, "domino-swap": piece.swap }')
+    #left-3.flex-left-list    
+        .vert(v-for="piece in leftThree" :key="piece.id" class="domino-vert domino-swap domino-righten")
+            domino(:value='piece.value' :class='{ "domino-vert": piece.isDouble, "domino-swap": piece.swap }')
+    #left-2.flex-left-list    
+        .vert(v-for="piece in leftTwo" :key="piece.id" class="domino-vert domino-swap domino-righten")
+            domino(:value='piece.value' :class='{ "domino-vert": piece.isDouble, "domino-swap": piece.swap }')
+    #left-1.flex-left-list    
+        .vert(v-for="piece in leftOne" :key="piece.id" class="domino-vert domino-swap domino-righten")
+            domino(:value='piece.value' :class='{ "domino-vert": piece.isDouble, "domino-swap": piece.swap }')
+    //#left    
         ul.flex-left-list
             li.vert(v-for="piece in left" :key="piece.id" class="domino-vert domino-swap")
                 domino(:value='piece.value' :class='{ "domino-vert": piece.isDouble, "domino-swap": piece.swap }')
+
 
     #end-left
         ul.flex-end-left-list
@@ -20,18 +33,32 @@
             li(v-for="piece in veryEndLeft" :key="piece.id" class="domino-quart")
                 domino(:value='piece.value' :class='{ "domino-vert": !piece.isDouble ,"domino-swap": piece.swap }')
 
-    #begin
+    //#begin
         ul.flex-list
             li(v-for="piece in begin" :key="piece.id")
                 domino(:value='piece.value' :class='{ "domino-vert": piece.isDouble, "domino-swap": piece.swap }')            
-    #right    
+    #begin.flex-list
+        domino(v-for="piece in begin" :key="piece.id" :value='piece.value' :class='{ "domino-vert": piece.isDouble, "domino-swap": piece.swap }')    
+    //#right    
         ul.flex-right-list
             li.vert(v-for="piece in right" :key="piece.id" class='domino-vert domino-swap')
-                domino(:value='piece.value' :class='{ "domino-vert": piece.isDouble, "domino-swap": piece.swap }')    
-    #bottom
+                domino(:value='piece.value' :class='{ "domino-vert": piece.isDouble, "domino-swap": piece.swap }')   
+    #right-1.flex-right-list
+        .vert(v-for="piece in rightOne" :key="piece.id" class='domino-vert domino-swap domino-heighten')
+            domino(:value='piece.value' :class='{ "domino-vert": piece.isDouble, "domino-swap": piece.swap }')
+    #right-2.flex-right-list
+        .vert(v-for="piece in rightTwo" :key="piece.id" class='domino-vert domino-swap domino-heighten')
+            domino(:value='piece.value' :class='{ "domino-vert": piece.isDouble, "domino-swap": piece.swap }')
+    #right-3.flex-right-list
+        .vert(v-for="piece in rightThree" :key="piece.id" class='domino-vert domino-swap domino-heighten')
+            domino(:value='piece.value' :class='{ "domino-vert": piece.isDouble, "domino-swap": piece.swap }')     
+    //#bottom
         ul.flex-bottom-list
             li(v-for="piece in bottom" :key="piece.id" class="domino-inverse")
                 domino(:value='piece.value' :class='{ "domino-vert": piece.isDouble ,"domino-swap": piece.swap }')
+    #bottom.flex-bottom-list
+        //domino(v-for="piece in bottom" :key="piece.id" :value='piece.value' class="domino-inverse" :class='{ "domino-vert": piece.isDouble ,"domino-swap": piece.swap }')
+        domino(v-for="piece in bottom" :key="piece.id" :value='piece.value' class="domino-reverse" :class='{ "domino-vert": piece.isDouble ,"domino-swap": piece.swap }')
 
     #end-right
         ul.flex-end-right-list
@@ -71,6 +98,18 @@ export default {
             return store.getters.getLeft
         })
 
+        const leftOne = computed( function(){
+            return store.getters.getLeftOne
+        })
+
+        const leftTwo = computed( function(){
+            return store.getters.getLeftTwo
+        })
+
+        const leftThree = computed( function(){
+            return store.getters.getLeftThree
+        })
+
         const top = computed( function(){
             return store.getters.getTop
         })
@@ -85,6 +124,18 @@ export default {
         
         const right = computed( function(){
             return store.getters.getRight
+        })
+
+        const rightOne = computed( function(){
+            return store.getters.getRightOne
+        })
+
+        const rightTwo = computed( function(){
+            return store.getters.getRightTwo
+        })
+
+        const rightThree = computed( function(){
+            return store.getters.getRightThree
         })
 
         const bottom = computed( function(){
@@ -105,7 +156,7 @@ export default {
         })
         watch(board, () => console.log('BOARD HAS ONE MORE!', board.value))
 
-        return { launch, store, begin, left, top, endLeft, veryEndLeft, right, bottom, endRight, veryEndRight, board }
+        return { launch, store, begin, left, leftOne, leftTwo, leftThree, top, endLeft, veryEndLeft, right, rightOne, rightTwo, rightThree, bottom, endRight, veryEndRight, board }
         
     }
     
@@ -118,12 +169,12 @@ export default {
 
 <style>
 .board {
-    min-width: 1200px; 
+    min-width: 900px; 
     margin: 10px; 
     background-color: green; 
     padding: 30px;
     display: grid;
-    grid-template-columns: repeat(8, 12.5%);
+    grid-template-columns: repeat(16, 6.25%);
     grid-template-rows: repeat(10, 80px);
 }
 ul {
@@ -206,12 +257,40 @@ li {
     grid-row: 3 / 4;
 }
 #top {
-    grid-column: 2 / 8;
+    grid-column: 4 / 15;
     grid-row: 1 / 2;
     border: solid 1px white;
     margin: 0px;
     padding: 0px;
     
+}
+#left-1 {
+    grid-column: 3 / 5;
+    grid-row: 4 / 5;
+    border: solid 1px white;
+    margin: 0px;
+    padding: 0px;
+
+}
+#left-2 {
+    /*justify-items: end;*/
+    /*align-items: center;*/
+    grid-column: 3 / 5;
+    grid-row: 3 / 4;
+    border: solid 1px white;
+    margin: 0px;
+    padding: 0px;
+
+}
+#left-3 {
+    /*justify-items: end;*/
+    /*align-items: center;*/
+    grid-column: 3 / 5;
+    grid-row: 2 / 3;
+    border: solid 1px white;
+    margin: 0px;
+    padding: 0px;
+
 }
 #left {
     /*justify-items: end;*/
@@ -221,15 +300,36 @@ li {
     border: solid 1px white;
     margin: 0px;
     padding: 0px;
-
 }
 #begin {
-    grid-column: 2 / 8;
+    grid-column: 2 / 15;
     grid-row: 5 / 6;
     border: solid 1px white;
     margin: 0px;
     padding: 0px;
 }
+#right-1 {
+    grid-column: 12 / 14;
+    grid-row: 6 / 7;
+    border: solid 1px white;
+    margin: 0px;
+    padding: 0px;
+}
+#right-2 {
+    grid-column: 12 / 14;
+    grid-row: 7 / 8;
+    border: solid 1px white;
+    margin: 0px;
+    padding: 0px;
+}
+#right-3 {
+    grid-column: 12 / 14;
+    grid-row: 8 / 9;
+    border: solid 1px white;
+    margin: 0px;
+    padding: 0px;
+}
+
 #right {
     grid-column: 7 / 8;
     grid-row: 6 / 9;
@@ -238,7 +338,7 @@ li {
     padding: 0px;
 }
 #bottom {
-    grid-column: 2 / 8;
+    grid-column: 2 / 13;
     grid-row: 9 / 10;
     border: solid 1px white;
     margin: 0px;

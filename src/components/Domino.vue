@@ -89,6 +89,16 @@ export default {
     padding: 0px;
     border: solid 1px black;
 }
+.domino-heighten {
+    position: relative;
+    top: -20px;
+    left: 20px;
+}
+.domino-righten {
+    position: relative;
+    top: -10px;
+    right: -40px;
+}
 .domino-vert {
     transform: rotate(0.75turn);
 }
@@ -97,6 +107,9 @@ export default {
 }
 .domino-mid {
     transform: rotate(0.50turn);
+}
+.domino-reverse {
+    transform: rotate(1.75turn);
 }
 .domino-inverse {
     transform: rotate(0.50turn);
