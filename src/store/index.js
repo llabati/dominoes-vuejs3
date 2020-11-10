@@ -31,11 +31,11 @@ const store = createStore({
             endLeft: [],
             veryEndLeft: [],
             endRight: [],
-            veryEndRight: [],
+            veryEndRight: [], 
             player: {},
             machine: {},
             machineChoices: [],
-            playerChoices: [],
+            playerChoices: [ [], [] ],
             locks: [],
             possibleLocks: [],
             lockChoices: [],
@@ -156,6 +156,18 @@ const store = createStore({
         getNeitherWins(state){
             localStorage.setItem('neither_wins', JSON.stringify(state.neitherWins))
             return state.neitherWins
+        },
+        getPlayerVictories(state){
+            return state.player.victories
+        },
+        getPlayerScore(state){
+            return state.player.score
+        },
+        getMachineVictories(state){
+            return state.machine.victories
+        },
+        getMachineScore(state){
+            return state.machine.score
         }
     },
     actions: {
@@ -280,18 +292,34 @@ const store = createStore({
         EVALUATE_PLAYER_CHOICES(state){
             console.log('EVALUATE PLAYER CHOICES', state.player.hand)
             state.playerChoices = state.player.hand.filter( d => d.value[0] === state.first || d.value[0] === state.last || d.value[1] === state.first || d.value[1] === state.last )
-
+            let ambi = []
+            let singles = []
             for (let domino of state.playerChoices){
                 if (domino.ambidextrous === true) domino.ambidextrous = false
             }
-            /*if (state.first === state.last) {
+            if (state.first === state.last) {
                 for (let domino of state.playerChoices){
                     domino.ambidextrous = true
+                    ambi.push(domino)
                 }
+                state.playerChoices[0] = ambi
+                state.playerChoices[1] = []
+                console.log('playerChoices amb', state.playerChoices)
+
             }
-            else { */
-            let focus = state.playerChoices.find( domino => domino.value[0] === state.first && domino.value[1] === state.last || domino.value[0] === state.last && domino.value[1] === state.first)
-            if (focus) focus.ambidextrous = true
+            else { 
+                ambi = state.playerChoices.filter( domino => domino.value[0] === state.first && domino.value[1] === state.last || domino.value[0] === state.last && domino.value[1] === state.first)
+                if (ambi.length) {
+                    for (let domino of ambi){
+                        domino.ambidextrous = true
+                        }
+                    } 
+                singles = state.playerChoices.filter(domino => !domino.ambidextrous) 
+                state.playerChoices[0] = ambi
+                state.playerChoices[1] = singles
+                console.log('playerChoices', state.playerChoices)
+            }   
+
             /*
             for (let domino of state.playerChoices){
                 if ( (domino.value[0] === state.first && domino.value[1] === state.last) || (domino.value[0] === state.last && domino.value[1] === state.first) ){

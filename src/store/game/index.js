@@ -5,16 +5,7 @@ export default {
         return {
             round: 1,
             stuck: false,
-            player: {
-                victories: 0,
-                recent_winning: false,
-                score: 0
-            },
-            machine: {
-                victories: 0,
-                recent_winning: false,
-                score: 0
-            }
+            
         }
     },
     getters: {
@@ -27,20 +18,8 @@ export default {
         getPlayerRecentWinning(state){
             return state.player.recent_winning
         },
-        getPlayerVictories(state){
-            return state.player.victories
-        },
-        getPlayerScore(state){
-            return state.player.score
-        },
-        getMachineVictories(state){
-            return state.machine.victories
-        },
         getMachineRecentWinning(state){
             return state.machine.recent_winning
-        },
-        getMachineScore(state){
-            return state.machine.score
         }
     },
     actions: {
@@ -56,23 +35,27 @@ export default {
             state.round++
             console.log('UPDATE ROUND', state.round)
         },
-        UPDATE_SCORE(state, payload){
+        UPDATE_SCORE(state, payload, rootState){
             console.log('QUEL STATE ?', state)
             if (!payload.score) {
                 state.stuck = true
             }
-            if (payload.player) {
+            else if (payload.player) {
                 state.stuck = false
-                state.player.score += payload.score
-                state.player.recent_winning = true
-                state.machine.recent_winning = false
+                rootState.player.score += payload.score
+                rootState.player.victories += 1
+                rootState.player.recent_winning = true
+                rootState.machine.recent_winning = false
             }
-            else {
+            else if (payload.machine){
                 state.stuck = false
-                state.machine.score += payload.score
-                state.machine.recent_winning = true
-                state.player.recent_winning = false
+                rootState.machine.score += payload.score
+                rootState.machine.victories += 1
+                rootState.machine.recent_winning = true
+                rootState.player.recent_winning = false
             }
+            console.log('PA', rootState.player)
+            console.log('MA', rootState.machine)
         }
     }
 }

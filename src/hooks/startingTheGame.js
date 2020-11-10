@@ -2,11 +2,11 @@
 export default function startingTheGame(){
   //console.log('PLAYER in HOOK', player)
 
-  function whoStarts(player, machine, round){
+  function whoStarts(player, machine, round, machine_recent_winning, player_recent_winning){
 
     console.log('WHO ?', player, round)
     let starter
-    if (round === 1) {
+    if (round.value === 1) {
         // y a t il des doubles => filtrer le tableau et prendre le double le plus haut
         // si pas de double, prendre le "total" le plus élevé
         console.log('MACHINE HAND', machine.value.hand)
@@ -42,9 +42,6 @@ export default function startingTheGame(){
               else {
                 player.value.isStarting = true
                 machine.value.isStarting = false
-                /*let firstDomino = player.value.hand.find( d => d.value[0] === playerFirst.value[0] && d.value[1] === playerFirst.value[1])
-                firstDomino.isStarter = true
-                console.log('FIRST DOMINO', firstDomino)*/
               }
               console.log('WHO STARTS', starter)
           }
@@ -57,9 +54,6 @@ export default function startingTheGame(){
               starter = player
               player.value.isStarting = true
               machine.value.isStarting = false
-              /*let firstDomino = player.value.hand.find( d => d.value[0] === playerFirst.value[0] && d.value[1] === playerFirst.value[1])
-              firstDomino.isStarter = true
-              console.log('FIRST DOMINO', firstDomino)*/
               }
           if (!doublesM.length && !doublesP.length) {
               starter = machineFirst.value[0] + machineFirst.value[1] > playerFirst.value[0] + playerFirst.value[1] ? machine : player
@@ -70,9 +64,6 @@ export default function startingTheGame(){
               else {
                 player.value.isStarting = true
                 machine.value.isStarting = false
-                /*let firstDomino = player.value.hand.find( d => d.value[0] === playerFirst.value[0] && d.value[1] === playerFirst.value[1])
-                firstDomino.isStarter = true
-                console.log('FIRST DOMINO', firstDomino)*/
               }
             }
             
@@ -86,7 +77,16 @@ export default function startingTheGame(){
                 starter = machine
                 machine.value.isStarting = true
                 player.value.isStarting = false
-
+                for (let dom of machine.value.hand) {
+                  dom.total = dom.value[0] + dom.value[1]
+                  dom.double = dom.value[0] == dom.value[1] ? true : false
+              }
+              let doublesM = machine.value.hand.filter(d => d.double)
+              doublesM.sort( (a,b) => b.total - a.total)
+    
+              let machineFirst = doublesM.length ? doublesM[0] : machine.value.hand.sort ( (a,b) => b.total - a.total )[0]
+              machine.value.start = machineFirst
+              console.log('STARTER machne ', machine.value.start)
               }
           }
           console.log('STARTER IS ', starter)
@@ -101,14 +101,7 @@ export default function startingTheGame(){
         dominoes.value.shift()
         
       }
-  /*function fullHand(playerHand, machineHand, dominoes){
-    console.log('FULL HAND', 'PLAYERHAND', playerHand, 'MACHINEHAND', machineHand, 'DOMINOES', dominoes)
-    playerHand.value.push(dominoes.value[0])
-    dominoes.value.shift()
-    machineHand.value.push(dominoes.value[0])
-    dominoes.value.shift()
-    
-  }*/
+  
 
   return [ whoStarts, fullHand ]
 

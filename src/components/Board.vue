@@ -7,7 +7,7 @@
                 domino(:value='piece.value' :class='{ "domino-vert": piece.isDouble, "domino-swap": piece.swap }')
     #top.flex-top-list
         //domino(v-for="piece in top" :key="piece.id" :value='piece.value' class="domino-mid" :class='{ "domino-vert": piece.isDouble, "domino-swap": piece.swap }')
-        domino(v-for="piece in top" :key="piece.id" :value='piece.value' class="domino-inverse" :class='{ "domino-vert": piece.isDouble, "domino-swap": piece.swap }')
+        domino(v-for="piece in top" :key="piece.id" :value='piece.value' :class='{ "domino-vert": !piece.isDouble, "domino-swap": piece.swap }')
     #left-3.flex-left-list    
         .vert(v-for="piece in leftThree" :key="piece.id" class="domino-vert domino-swap domino-righten")
             domino(:value='piece.value' :class='{ "domino-vert": piece.isDouble, "domino-swap": piece.swap }')
@@ -58,7 +58,7 @@
                 domino(:value='piece.value' :class='{ "domino-vert": piece.isDouble ,"domino-swap": piece.swap }')
     #bottom.flex-bottom-list
         //domino(v-for="piece in bottom" :key="piece.id" :value='piece.value' class="domino-inverse" :class='{ "domino-vert": piece.isDouble ,"domino-swap": piece.swap }')
-        domino(v-for="piece in bottom" :key="piece.id" :value='piece.value' class="domino-reverse" :class='{ "domino-vert": piece.isDouble ,"domino-swap": piece.swap }')
+        domino(v-for="piece in bottom" :key="piece.id" :value='piece.value' class="domino-inverse" :class='{ "domino-vert": piece.isDouble ,"domino-swap": piece.swap }')
 
     #end-right
         ul.flex-end-right-list
@@ -174,10 +174,10 @@ export default {
     background-color: green; 
     padding: 30px;
     display: grid;
-    grid-template-columns: repeat(16, 6.25%);
+    grid-template-columns: 10% repeat(9, 98px) 10%; 
     grid-template-rows: repeat(10, 80px);
 }
-ul {
+ul { 
     margin: 0px;
     padding: 0px;
     margin-block-start: 0px;
@@ -257,7 +257,7 @@ li {
     grid-row: 3 / 4;
 }
 #top {
-    grid-column: 4 / 15;
+    grid-column: 3 / 11;
     grid-row: 1 / 2;
     border: solid 1px white;
     margin: 0px;
@@ -265,7 +265,7 @@ li {
     
 }
 #left-1 {
-    grid-column: 3 / 5;
+    grid-column: 2 / 3;
     grid-row: 4 / 5;
     border: solid 1px white;
     margin: 0px;
@@ -275,7 +275,7 @@ li {
 #left-2 {
     /*justify-items: end;*/
     /*align-items: center;*/
-    grid-column: 3 / 5;
+    grid-column: 2 / 3;
     grid-row: 3 / 4;
     border: solid 1px white;
     margin: 0px;
@@ -285,60 +285,45 @@ li {
 #left-3 {
     /*justify-items: end;*/
     /*align-items: center;*/
-    grid-column: 3 / 5;
+    grid-column: 2 / 3;
     grid-row: 2 / 3;
     border: solid 1px white;
     margin: 0px;
     padding: 0px;
 
 }
-#left {
-    /*justify-items: end;*/
-    /*align-items: center;*/
-    grid-column: 2 / 3;
-    grid-row: 2 / 5;
-    border: solid 1px white;
-    margin: 0px;
-    padding: 0px;
-}
+
 #begin {
-    grid-column: 2 / 15;
+    grid-column: 2 / 11;
     grid-row: 5 / 6;
     border: solid 1px white;
     margin: 0px;
     padding: 0px;
 }
 #right-1 {
-    grid-column: 12 / 14;
+    grid-column: 10 / 11;
     grid-row: 6 / 7;
     border: solid 1px white;
     margin: 0px;
     padding: 0px;
 }
 #right-2 {
-    grid-column: 12 / 14;
+    grid-column: 10 / 11;
     grid-row: 7 / 8;
     border: solid 1px white;
     margin: 0px;
     padding: 0px;
 }
 #right-3 {
-    grid-column: 12 / 14;
+    grid-column: 10 / 11;
     grid-row: 8 / 9;
     border: solid 1px white;
     margin: 0px;
     padding: 0px;
 }
 
-#right {
-    grid-column: 7 / 8;
-    grid-row: 6 / 9;
-    border: solid 1px white;
-    margin: 0px;
-    padding: 0px;
-}
 #bottom {
-    grid-column: 2 / 13;
+    grid-column: 2 / 11;
     grid-row: 9 / 10;
     border: solid 1px white;
     margin: 0px;

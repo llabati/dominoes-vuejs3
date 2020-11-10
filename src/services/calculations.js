@@ -9,21 +9,27 @@ export default {
     evaluatePlayerChoices: function(player, first, last){
         console.log('EVALUATE PLAYER CHOICES', 'FIRST', first, 'LAST', last, 'PLAYER', player)
         let selection = player.value.hand.filter( d => d.value[0] === first || d.value[0] === last || d.value[1] === first || d.value[1] === last )
+        let ambi = []
         for (let domino of selection){
             if (domino.ambidextrous === true) domino.ambidextrous = false
         }
         if (first === last) {
             for (let domino of selection){
                 domino.ambidextrous = true
+                ambi.push(domino)
             }
+            
         }
         else {
             for (let domino of selection){
                 if ( domino.value[0] === first && domino.value[1] === last || domino.value[0] === last && domino.value[1] === first ){
                     domino.ambidextrous = true
+                    ambi.push(domino)
                 }
             }
         }
+        let singles = selection.filter(domino => !domino.ambidextrous)
+        selection = [ ambi, singles ]
         return selection
     },
 

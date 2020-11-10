@@ -1,36 +1,55 @@
 <template lang="pug">
-.intro.choose
-    p.lead 
-        slot
-    div(style='display: flex; flex-direction: row; justify-content: center;')
-        button.btn-name(style="background: white; color: green;" @click='close') Autre domino
-    div
-        button.btn-name(style='float: left; padding: 5px;' @click='left') Placez à gauche
-        button.btn-name(style='float: right; padding: 5px;' @click='right') Placez à droite
-    
+.select.choose
+    div(style='height: 20px; position: relative; top: 100;')
+        p.lead 
+            slot
+    .hand(style="margin-top: 25px; position: relative; top: 200;")
+        .flex-list
+            button.btn-name(style="margin-top: 50px; width: 10%;" @click='left(piece)') &larr;
+            domino.domino-vert.active-domino(:value='piece.value' @click='chooseDom(piece)')
+            button.btn-name(style="margin-top: 50px; width: 10%;" @click='right(piece)') &rarr;
+
 </template>
 
 <script>
+import Domino from './Domino.vue'
+import { inject } from 'vue'
 export default {
-    props: [],
-    emits: [ 'place-to-left', 'place-to-right', 'close' ],
+    props: [ 'piece' ],
+    emits: [ 'place-to-left', 'place-to-right' ],
+    components: {
+            Domino
+        },
     setup (props, context) {
-        
-        function left(){
-            context.emit('place-to-left')
+        let playerChoices = inject('playerChoices')
+        function chooseDom(piece){
+            console.log('choose-dom', piece)
+            context.emit('choose-dom', piece)
+        } 
+        function left(piece){
+            console.log('place-to-left', piece)
+            context.emit('place-to-left', piece)
+        } 
+        function right(piece){
+            console.log('place-to-right', piece)
+            context.emit('place-to-right', piece)
         }
-        function right(){
-            context.emit('place-to-right')
-        }
-        function close(){
-            context.emit('close')
-        }
-
-        return { left, right, close }
+ 
+        return { playerChoices, chooseDom, left, right }
     }
 }
 </script>
 
 <style>
+.select {
+    margin: 20px auto;
+    padding: 15px;
+    border: solid 3px white;
+    border-radius: 5px;
+    box-shadow: 5px 5px 5px 5px rgba(0, 0, 0, .3);
+    z-index: 10;
+    color: white;
+    animation: GetVisible 3s ease;
+}
 
 </style>
