@@ -42,6 +42,8 @@ export default {
 
 <style>
 .select {
+    position: relative; 
+    /*top: -100px;*/
     margin: 20px auto;
     padding: 15px;
     border: solid 3px white;

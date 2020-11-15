@@ -43,5 +43,7 @@ export default {
 .alert {
     background-color: blue;
     padding: 15px;
+    position: relative; 
+    top: -450px;
 }
 </style>

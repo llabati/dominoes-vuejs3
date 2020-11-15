@@ -1,27 +1,20 @@
 <template lang="pug">
     
 .board(v-if='launch')
-    //#top
-        ul.flex-top-list
-            li(v-for="piece in top" :key="piece.id" class="domino-mid")
-                domino(:value='piece.value' :class='{ "domino-vert": piece.isDouble, "domino-swap": piece.swap }')
+    
     #top.flex-top-list
-        //domino(v-for="piece in top" :key="piece.id" :value='piece.value' class="domino-mid" :class='{ "domino-vert": piece.isDouble, "domino-swap": piece.swap }')
-        domino(v-for="piece in top" :key="piece.id" :value='piece.value' :class='{ "domino-vert": !piece.isDouble, "domino-swap": piece.swap }')
+        domino(v-for="piece in top" :key="piece.id" :value='piece.value' class="domino-top" :class='{ "domino-vert": piece.isDouble, "domino-swap": piece.swap }')
+    
     #left-3.flex-left-list    
-        .vert(v-for="piece in leftThree" :key="piece.id" class="domino-vert domino-swap domino-righten")
+        .vert(v-for="piece in leftThree" :key="piece.id" class="domino-left domino-vert domino-righten")
             domino(:value='piece.value' :class='{ "domino-vert": piece.isDouble, "domino-swap": piece.swap }')
     #left-2.flex-left-list    
-        .vert(v-for="piece in leftTwo" :key="piece.id" class="domino-vert domino-swap domino-righten")
+        .vert(v-for="piece in leftTwo" :key="piece.id" class="domino-left domino-vert domino-righten")
             domino(:value='piece.value' :class='{ "domino-vert": piece.isDouble, "domino-swap": piece.swap }')
     #left-1.flex-left-list    
-        .vert(v-for="piece in leftOne" :key="piece.id" class="domino-vert domino-swap domino-righten")
+        .vert(v-for="piece in leftOne" :key="piece.id" class="domino-left domino-vert domino-righten")
             domino(:value='piece.value' :class='{ "domino-vert": piece.isDouble, "domino-swap": piece.swap }')
-    //#left    
-        ul.flex-left-list
-            li.vert(v-for="piece in left" :key="piece.id" class="domino-vert domino-swap")
-                domino(:value='piece.value' :class='{ "domino-vert": piece.isDouble, "domino-swap": piece.swap }')
-
+    
 
     #end-left
         ul.flex-end-left-list
@@ -33,32 +26,21 @@
             li(v-for="piece in veryEndLeft" :key="piece.id" class="domino-quart")
                 domino(:value='piece.value' :class='{ "domino-vert": !piece.isDouble ,"domino-swap": piece.swap }')
 
-    //#begin
-        ul.flex-list
-            li(v-for="piece in begin" :key="piece.id")
-                domino(:value='piece.value' :class='{ "domino-vert": piece.isDouble, "domino-swap": piece.swap }')            
     #begin.flex-list
-        domino(v-for="piece in begin" :key="piece.id" :value='piece.value' :class='{ "domino-vert": piece.isDouble, "domino-swap": piece.swap }')    
-    //#right    
-        ul.flex-right-list
-            li.vert(v-for="piece in right" :key="piece.id" class='domino-vert domino-swap')
-                domino(:value='piece.value' :class='{ "domino-vert": piece.isDouble, "domino-swap": piece.swap }')   
+        domino(v-for="piece in begin" :key="piece.id" :value='piece.value' class="domino-begin" :class='{ "domino-vert": piece.isDouble, "domino-swap": piece.swap }')    
+    
     #right-1.flex-right-list
-        .vert(v-for="piece in rightOne" :key="piece.id" class='domino-vert domino-swap domino-heighten')
+        .vert(v-for="piece in rightOne" :key="piece.id" class='domino-right domino-vert domino-heighten')
             domino(:value='piece.value' :class='{ "domino-vert": piece.isDouble, "domino-swap": piece.swap }')
     #right-2.flex-right-list
-        .vert(v-for="piece in rightTwo" :key="piece.id" class='domino-vert domino-swap domino-heighten')
+        .vert(v-for="piece in rightTwo" :key="piece.id" class='domino-right domino-vert domino-heighten')
             domino(:value='piece.value' :class='{ "domino-vert": piece.isDouble, "domino-swap": piece.swap }')
     #right-3.flex-right-list
-        .vert(v-for="piece in rightThree" :key="piece.id" class='domino-vert domino-swap domino-heighten')
+        .vert(v-for="piece in rightThree" :key="piece.id" class='domino-right domino-vert domino-heighten')
             domino(:value='piece.value' :class='{ "domino-vert": piece.isDouble, "domino-swap": piece.swap }')     
-    //#bottom
-        ul.flex-bottom-list
-            li(v-for="piece in bottom" :key="piece.id" class="domino-inverse")
-                domino(:value='piece.value' :class='{ "domino-vert": piece.isDouble ,"domino-swap": piece.swap }')
+    
     #bottom.flex-bottom-list
-        //domino(v-for="piece in bottom" :key="piece.id" :value='piece.value' class="domino-inverse" :class='{ "domino-vert": piece.isDouble ,"domino-swap": piece.swap }')
-        domino(v-for="piece in bottom" :key="piece.id" :value='piece.value' class="domino-inverse" :class='{ "domino-vert": piece.isDouble ,"domino-swap": piece.swap }')
+        domino(v-for="piece in bottom" :key="piece.id" :value='piece.value' class="domino-bottom" :class='{ "domino-reverse": piece.isDouble ,"domino-swap": !piece.swap }')
 
     #end-right
         ul.flex-end-right-list
@@ -94,10 +76,6 @@ export default {
             return store.getters.getBegin
         })
 
-        const left = computed( function(){
-            return store.getters.getLeft
-        })
-
         const leftOne = computed( function(){
             return store.getters.getLeftOne
         })
@@ -122,10 +100,6 @@ export default {
             return store.getters.getVeryEndLeft
         })
         
-        const right = computed( function(){
-            return store.getters.getRight
-        })
-
         const rightOne = computed( function(){
             return store.getters.getRightOne
         })
@@ -156,7 +130,7 @@ export default {
         })
         watch(board, () => console.log('BOARD HAS ONE MORE!', board.value))
 
-        return { launch, store, begin, left, leftOne, leftTwo, leftThree, top, endLeft, veryEndLeft, right, rightOne, rightTwo, rightThree, bottom, endRight, veryEndRight, board }
+        return { launch, store, begin, leftOne, leftTwo, leftThree, top, endLeft, veryEndLeft, rightOne, rightTwo, rightThree, bottom, endRight, veryEndRight, board }
         
     }
     
@@ -352,7 +326,7 @@ li {
     transform: rotate(180deg);
 }
 
-
+/*
 @keyframes enterTheBoardRight {
     from {
         opacity: 0;
@@ -373,5 +347,6 @@ li {
         transform: translateX(0);
     }
 }
+*/
 
 </style>

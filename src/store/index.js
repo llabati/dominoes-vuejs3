@@ -32,8 +32,8 @@ const store = createStore({
             veryEndLeft: [],
             endRight: [],
             veryEndRight: [], 
-            player: {},
-            machine: {},
+            player: Player,
+            machine: Machine,
             machineChoices: [],
             playerChoices: [ [], [] ],
             locks: [],
@@ -54,15 +54,14 @@ const store = createStore({
             return state.machine
         },
         getPlayerHand(state){
-            localStorage.setItem('player_hand', JSON.stringify(state.player.hand))
+            //if (!state.player.hasOwnProperty(name)) return undefined
             return state.player.hand
         },
         getPlayerChoices(state){
-            localStorage.setItem('player_choices', JSON.stringify(state.playerChoices))
             return state.playerChoices
         },
         getMachineHand(state){
-            localStorage.setItem('machine_hand', JSON.stringify(state.machine.hand))
+            //if (!state.machine.hasOwnProperty()) return undefined
             return state.machine.hand
         },
         getDominoes(state){
@@ -70,7 +69,6 @@ const store = createStore({
         },
         getBoard(state){
             console.log('BOARD', state.board)
-            localStorage.setItem('board', JSON.stringify(state.board))
             return state.board
         },
         getFirst(state){
@@ -135,26 +133,21 @@ const store = createStore({
             return state.start
         },
         getLocks(state){
-            localStorage.setItem('locks', JSON.stringify(state.locks))
             return state.locks
         },
         getPossibleLocks(state){
-            localStorage.setItem('possibleLocks', JSON.stringify(state.possibleLocks))
             return state.possibleLocks
         },
         getAlert(state){
             return state.alert
         },
         getPlayerWins(state){
-            //localStorage.setItem('player_wins', JSON.stringify(state.playerWins))
             return state.playerWins
         },
         getMachineWins(state){
-            //localStorage.setItem('machine_wins', JSON.stringify(state.machineWins))
             return state.machineWins
         },
         getNeitherWins(state){
-            localStorage.setItem('neither_wins', JSON.stringify(state.neitherWins))
             return state.neitherWins
         },
         getPlayerVictories(state){
@@ -509,6 +502,29 @@ const store = createStore({
         NEITHERWINS_IS_TRUE(state){
             state.neitherWins = true
         },
+        UPDATE_SCORE(state, payload){
+            
+            if (!payload.score) {
+                state.gameModule.stuck = true
+            }
+            else if (payload.player) {
+                state.gameModule.stuck = false
+                state.player.score += payload.score
+                state.player.victories += 1
+                state.player.recent_winning = true
+                state.machine.recent_winning = false
+            }
+            else if (payload.machine){
+                state.gameModule.stuck = false
+                state.machine.score += payload.score
+                state.machine.victories += 1
+                state.machine.recent_winning = true
+                state.player.recent_winning = false
+            }
+            console.log('PA', state.player)
+            console.log('MA', state.machine)
+            console.log('game', state.gameModule)
+        },
         RESET_ALL(state){
             state.start = false
             state.dominoes = []
@@ -516,12 +532,12 @@ const store = createStore({
             state.first = undefined
             state.last = undefined
             state.begin = []
-            state.left = []
+            
             state.leftOne = []
             state.leftTwo = []
             state.leftThree = []
             state.top = []
-            state.right = []
+            
             state.rightOne = []
             state.rightTwo = []
             state.rightThree = []
@@ -540,6 +556,8 @@ const store = createStore({
             state.neitherWins = false
             state.player.hand = []
             state.machine.hand = []
+            state.gameModule.stuck = false
+            console.log('RESET stre  -- stc' + state.gameModule.stuck )
         }
         
     },

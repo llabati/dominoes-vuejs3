@@ -23,25 +23,17 @@ export default {
     let launch = ref(false)
     provide('launch', launch)
 
-    const currentPlayer = function nameThisPlayer(name){
-      store.dispatch('addPlayer', name)
-      console.log('NAME ADDED!', name)
+    const currentPlayer = async function nameThisPlayer(name){
+      await store.dispatch('addPlayer', name)
       store.dispatch('setStartToTrue')
     }
 
     function setBoard(){
-      
-      try {
         launch.value = true
-        console.log('LAUNCH VALUE', launch.value)
       }
-      catch {
-        console.error('Error is...')
-      }
-    }
+      
 
-
-    return { currentPlayer, setBoard }
+    return { launch, currentPlayer, setBoard }
   },
 
   

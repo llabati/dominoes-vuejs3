@@ -1,7 +1,6 @@
 <template lang="pug">
-#app
-  game
-  
+
+game
   
 </template>
 
@@ -16,23 +15,8 @@ export default {
   
   components: {
     Game
-  },
-  
-  setup(){
-    
-    /*const title = ref('Welcome')
-    const name = ref('Pascal')
-    const welcome = computed( () => `${title.value}, ${name.value}!`)
-    provide('welcome', welcome)
-    let counter = computed( () => store.getters.getInit )
-    console.log('COUNTER', counter)
-
-    const [ incrementCounter, decrementCounter ] = counterManagement()
-
-    const alert = watch(counter, () => console.log('COUNTER CHANGES', counter.value))
-    return { counter, incrementCounter, decrementCounter, alert }
-    */
   }
+  
 }
 </script>
   
