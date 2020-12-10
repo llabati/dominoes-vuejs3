@@ -23,6 +23,9 @@ export default {
     let launch = ref(false)
     provide('launch', launch)
 
+    const round = ref(round)
+    provide('round', round)
+
     const currentPlayer = async function nameThisPlayer(name){
       await store.dispatch('addPlayer', name)
       store.dispatch('setStartToTrue')

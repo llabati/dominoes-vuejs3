@@ -93,12 +93,21 @@ export default {
 .domino-heighten {
     position: relative;
     top: -20px;
-    left: 20px;
+    left: 10px;
 }
 .domino-righten {
     position: relative;
     top: -10px;
-    right: -40px;
+    left: 20px;
+}
+.domino-lower {
+    position: relative;
+    top: 30px;
+    
+}
+.domino-leften {
+    position: relative;
+    left: -40px;
 }
 .domino-vert {
     transform: rotate(0.25turn);
@@ -136,59 +145,59 @@ export default {
 @keyframes GetPlaced {
     from {
         opacity: 0;
-        transform: scale(0.8);
+        /*transform: scale(0.8);*/
     }
     to {
         opacity: 1;
-        transform: scale(1);
+        /*transform: scale(1);*/
     }
 }
 @keyframes GetTopPlaced {
     from {
         opacity: 0;
-        transform: scale(0.8);
-        transform: translateX(20px);
+        /*transform: scale(0.8);*/
+        /*transform: translateX(20px);*/
     }
     to {
         opacity: 1;
-        transform: scale(1);
-        transform: translateX(0);
+        /*transform: scale(1);*/
+        /*transform: translateX(0);*/
     }
 }
 @keyframes GetLeftPlaced {
     from {
         opacity: 0;
-        transform: scale(0.8);
-        transform: translateY(-20px);
+        /*transform: scale(0.8);
+        transform: translateY(-20px);*/
     }
     to {
         opacity: 1;
-        transform: scale(1);
-        transform: translateY(0);
+       /* transform: scale(1);
+        transform: translateY(0);*/
     }
 }
 @keyframes GetRightPlaced {
     from {
         opacity: 0;
-        transform: scale(0.8);
-        transform: translateY(20px);
+        /*transform: scale(0.8);
+        transform: translateY(20px);*/
     }
     to {
         opacity: 1;
-        transform: scale(1);
-        transform: translateY(0);
+        /*transform: scale(1);
+        transform: translateY(0);*/
     }
 }
 @keyframes GetBottomPlaced {
     from {
         opacity: 0;
-        transform: scale(0.8);
-        transform: translateX(-20px);
+        /*transform: scale(0.8);
+        transform: translateX(-20px);*/
     }
     to {
         opacity: 1;
-        transform: scale(1);
-        transform: translateX(0);
+        /*transform: scale(1);
+        transform: translateX(0);*/
     }
 }
 

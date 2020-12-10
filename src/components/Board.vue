@@ -3,7 +3,7 @@
 .board(v-if='launch')
     
     #top.flex-top-list
-        domino(v-for="piece in top" :key="piece.id" :value='piece.value' class="domino-top" :class='{ "domino-vert": piece.isDouble, "domino-swap": piece.swap }')
+        domino(v-for="piece in top" :key="piece.id" :value='piece.value' class="domino-top domino-lower domino-righten" :class='{ "domino-reverse": piece.isDouble, "domino-swap": !piece.swap }')
     
     #left-3.flex-left-list    
         .vert(v-for="piece in leftThree" :key="piece.id" class="domino-left domino-vert domino-righten")
@@ -40,7 +40,7 @@
             domino(:value='piece.value' :class='{ "domino-vert": piece.isDouble, "domino-swap": piece.swap }')     
     
     #bottom.flex-bottom-list
-        domino(v-for="piece in bottom" :key="piece.id" :value='piece.value' class="domino-bottom" :class='{ "domino-reverse": piece.isDouble ,"domino-swap": !piece.swap }')
+        domino(v-for="piece in bottom" :key="piece.id" :value='piece.value' class="domino-bottom domino-leften" :class='{ "domino-reverse": piece.isDouble ,"domino-swap": !piece.swap }')
 
     #end-right
         ul.flex-end-right-list
@@ -66,10 +66,18 @@ export default {
     components: {
         Domino
     },
-    inject: [ 'launch' ],
+    inject: [ 'launch', 'round' ],
     setup(){
 
         const launch = inject('launch')
+
+        const round = inject('round')
+        watch(round, () => {
+            if(round.value){
+                () => updateBoard()
+            }
+        }
+        )
         
         const begin = computed( function(){
             console.log('BEGIN', store.getters.getBegin)
@@ -123,14 +131,26 @@ export default {
         const veryEndRight = computed( function(){
             return store.getters.getVeryEndRight
         })
+
+        const board = computed( () => {
+            return store.getters.getBoard
+        })
         
-        const board = computed( function(){
+        const boardDisplay = computed( function(){
             console.log('BOARD in BOARD', store.getters.getBoard)
             return store.getters.getBoard
         })
-        watch(board, () => console.log('BOARD HAS ONE MORE!', board.value))
+        watch(boardDisplay, () => {
+            if (round.value){
 
-        return { launch, store, begin, leftOne, leftTwo, leftThree, top, endLeft, veryEndLeft, rightOne, rightTwo, rightThree, bottom, endRight, veryEndRight, board }
+                console.log('BOARD IS RESET!', boardDisplay.value)
+                }
+            })
+
+        function updateBoard(){
+            return { veryEndLeft, endLeft, top, leftOne, leftTwo, leftThree, begin, rightOne, rightTwo, rightThree, bottom, endRight, veryEndRight }
+        }
+        return { launch, store, begin, leftOne, leftTwo, leftThree, top, endLeft, veryEndLeft, rightOne, rightTwo, rightThree, bottom, endRight, veryEndRight, board, boardDisplay }
         
     }
     
@@ -144,7 +164,7 @@ export default {
 <style>
 .board {
     min-width: 900px; 
-    margin: 10px; 
+    margin: 10px auto; 
     background-color: green; 
     padding: 30px;
     display: grid;
@@ -201,7 +221,7 @@ li {
 .flex-top-list {
     list-style-type: none;
     margin: 0px;
-    padding: 0px;
+    padding: 0px 0px 0px 20px;
     display: flex;
     flex-direction: row;
     justify-content: left;
@@ -231,17 +251,15 @@ li {
     grid-row: 3 / 4;
 }
 #top {
-    grid-column: 3 / 11;
+    grid-column: 2 / 11;
     grid-row: 1 / 2;
-    border: solid 1px white;
     margin: 0px;
-    padding: 0px;
+    /*padding: 0px;*/
     
 }
 #left-1 {
     grid-column: 2 / 3;
     grid-row: 4 / 5;
-    border: solid 1px white;
     margin: 0px;
     padding: 0px;
 
@@ -251,7 +269,6 @@ li {
     /*align-items: center;*/
     grid-column: 2 / 3;
     grid-row: 3 / 4;
-    border: solid 1px white;
     margin: 0px;
     padding: 0px;
 
@@ -261,7 +278,6 @@ li {
     /*align-items: center;*/
     grid-column: 2 / 3;
     grid-row: 2 / 3;
-    border: solid 1px white;
     margin: 0px;
     padding: 0px;
 
@@ -270,28 +286,24 @@ li {
 #begin {
     grid-column: 2 / 11;
     grid-row: 5 / 6;
-    border: solid 1px white;
     margin: 0px;
     padding: 0px;
 }
 #right-1 {
     grid-column: 10 / 11;
     grid-row: 6 / 7;
-    border: solid 1px white;
     margin: 0px;
     padding: 0px;
 }
 #right-2 {
     grid-column: 10 / 11;
     grid-row: 7 / 8;
-    border: solid 1px white;
     margin: 0px;
     padding: 0px;
 }
 #right-3 {
     grid-column: 10 / 11;
     grid-row: 8 / 9;
-    border: solid 1px white;
     margin: 0px;
     padding: 0px;
 }
@@ -299,7 +311,6 @@ li {
 #bottom {
     grid-column: 2 / 11;
     grid-row: 9 / 10;
-    border: solid 1px white;
     margin: 0px;
     padding: 0px;
 }

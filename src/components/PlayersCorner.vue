@@ -9,10 +9,9 @@
                 domino.domino-vert.active-domino(:value='piece.value' @chosen='chooseDomino(piece, undefined)')
         
 
-    alertsDisplay(v-if='alert' @clear-message ="message=''" @go-next="nextRound" @next-please="relaunch")
+    alertsDisplay(v-if='alert' @clear-message ="message=''" @go-next="nextRound")
     
-    div(v-if="playerChoices[0].length" style="text-align: center; position: relative; top: -100px;")
-        button.btn-name(style="background: white; color: green; width: 100px; margin: 5px auto;" @click='sider=false') Autre domino
+    div(v-if="playerChoices && playerChoices[0].length" style="text-align: center;")
         ul.flex-list 
             selectDisplay(v-for="piece in playerChoices[0]" :key="piece.id" :piece="piece" v-on:choose-dom='chooseDomino(piece, undefined)' v-on:place-to-left='chooseAmbidextrousDomino(piece, "left")' v-on:place-to-right='chooseAmbidextrousDomino(piece, "right")') Ce domino peut être placé à gauche ou à droite.     
 
@@ -138,13 +137,14 @@
 
             let playerHand = computed( function(){
                 console.log('PLAYERHAND in PLAYERSCORNER', store.getters.getPlayerHand)
-                return store.getters.getPlayerHand  // Proxy
+                return store.getters.getPlayerHand  
             })
             watch(playerHand, function(){
+                if (playerHand === undefined) playerhand.value = []
                 if (!playerHand.value.length && board.value.length) {
                     console.log('PLAYER HAS NO PIECE!', playerHand)
                     store.dispatch('playerWinsIsTrue')
-                }
+                } 
                 
             })
             let machine = computed(function(){
@@ -167,12 +167,20 @@
             provide('playerChoices', playerChoices)
 
             watch(playerChoices, function() {
-                console.log('playerChoices.value', playerChoices.value)
-                if (!board.value.length) draw.value = false
+                console.log('playerChoices.value and ', 'board.value' )
+                console.log('board.value', board.value )
+                console.log('playerChoices.value', playerChoices.value, 'board.value' , board.value )
+                if (playerChoices === undefined) playerChoices.value = [ [], [] ]
+                if (!board.value.length && !playerHand.value.length) {
+                    console.log('playerChoices.value n bard n payer hand' )
+                    draw.value = false
+                }
                 if (board.value.length && !playerHand.value.length){
                     draw.value = false
                     store.dispatch('playerWinsIsTrue')
                 }
+                
+                if (restPieces.value.length && board.value && !board.value.length) draw.value = false
                 
                 else if (playerChoices.value[0].length || playerChoices.value[1].length) draw.value = false
                 
@@ -182,16 +190,16 @@
                     store.dispatch('addToLocks', newLocks)
                     draw.value = true
 
-                    if (!restPieces.value ===  0){
+                    if (restPieces.value ===  0){
                     draw.value = false
                     stopDrawing = true
-                }
+                    }
                 }
                 
                 
                 console.log('PLAYER CHOICES HAS CHANGED', playerChoices.value, 'DRAW', draw.value) 
                 
-            })
+            }) 
 
             let machineChoices = ref([])
 
@@ -203,6 +211,7 @@
                 return store.getters.getBoard
             })
             watch(board, function(){
+                if (board === undefined) board.value = []
                 console.log('BOARD IS CHANGED!')
                 
             })
@@ -217,9 +226,9 @@
             })
             watch(restPieces, function(){
                 if (board.value.length){
-                    if (restPieces.value < 1){
+                    if (restPieces.value === 0){
                     draw.value = false
-                    stopDrawing = true
+                    //stopDrawing = true
                     store.dispatch('evaluatePlayerChoices')
                     console.log('WATCHING RESTPIECES', 'MACHINE CHOICES', machineChoices.value, 'PLAYER CHOICES', playerChoices.value)
                     if (!machineChoices.value.length && (playerChoices.value[0].length || playerChoices.value[1].length)) {
@@ -290,6 +299,15 @@
                 store.dispatch('unsetAlert')
                 store.dispatch('setStartToFalse')
                 console.log('stage 1')
+                if (playerHand.value.length) {
+                    store.dispatch('resetPlayerHand')
+                    console.log('resetPlayerHand', playerHand.value)
+                }
+                if (machineHand.value.length) {
+                    store.dispatch('resetMachineHand')
+                    console.log('resetMachineHand', machineHand.value)
+                }
+                store.dispatch('resetPlayerChoices')
                 await store.dispatch('setGame')
                 console.log('RESTPIECES BEFORE', restPieces)
                 let click = 0
@@ -303,6 +321,9 @@
                 console.log('TWO HANDS REFUELED')
                 console.log('ROUND', round.value, 'STUCK', stuck.value)
                 
+                /*if (round.value > 1) {
+                    store.dispatch('updatePlayerAndMachine')
+                }*/
                 if (round.value === 1 || stuck.value) {
                     console.log('stage 3a')
                     let starter = whoStarts(player, machine, round, false, false)
@@ -333,10 +354,13 @@
                 let machine_recent_winning = store.getters['gameModule/getMachineRecentWinning'] 
                 let player_recent_winning = store.getters['gameModule/getPlayerRecentWinning']
                 let starter = whoStarts(player, machine, round, machine_recent_winning, player_recent_winning)
+                message.value = ''
+                store.dispatch('unsetAlert')
                 context.emit('play')
 
                 // afficher ici les résultats et la progression et le cumul des manches 
-                console.log('stage 4b')
+                console.log('stage 4b' + starter)
+                console.log('board', board.value, 'playerHand', playerHand.value, 'playerChoices', playerChoices.value, 'dominoes', dominoes.value)
                 if (machine_recent_winning) {
                     //let firstDomino = player.value.hand.find( d => d.value == player.value.start.value)
                     message.value = `A la machine de commencer cette nouvelle manche !`
@@ -424,14 +448,13 @@
             if (!board.value.length && machine.value.isStarting === true){
                 console.log(`Machine is starting with ${machine.value.start.value[0]} ${machine.value.start.value[1]}`)
                 
-                
                 machine.value.start.player = false
                 store.dispatch('addToBoard', machine.value.start)
                 machine.value.isStarting = false
-                keepPlaying.value = false
+                upToThePlayer()
             
             }
-            if (board.value.length && keepPlaying.value === true) {
+            else if (board.value.length && keepPlaying.value === true) {
                 console.log('KEEP PLAYING!')
                 
                 // surveiller les valeurs qui vont bientôt manquer...
@@ -478,86 +501,102 @@
                 // pas de domino à placer : la machine pioche...
                 if (!machineChoices.value.length && board.value.length) {
                     if (stopDrawing.value === true){
-                        keepPlaying.value = false
                         console.log('KEEPPLAYING MACHINE PLAYS NOCHOICE', keepPlaying.value)
+                        upToThePlayer()
                     } 
-                    if (restPieces.value === 0 && !playerChoices.value.length) {
+                    else if (restPieces.value === 0 && !playerChoices.value.length) {
                         store.dispatch('neitherWinsIsTrue')
-                    } else {
+                    } 
+                    else {
                         continueDrawing.value = true
-                        for (let d; d < dominoes.value.length - 1; d++){
-                            console.log('HAND befre draw', machine.value.hand)
-                            drawAgain(0)
+                        let d = 0
+                        while (dominoes.value[d]){
+                            store.dispatch('drawOne', 0)
                             let newPiece = machine.value.hand[machine.value.hand.length-1]
                             console.log('NEWPIECE', newPiece)
-                            if (newPiece.value[0] === first.value || newPiece.value[1] === first.value || newPiece.value[0] === last.value || newPiece.value[1] === last.value){
+                            if (!newPiece.value.includes(first.value) && !newPiece.value.includes(last.value)) { 
+                                continueDrawing.value = true
+                                keepPlaying.value = true
+                                console.log('MACHINECHOICES HAS NO SOLUION AFER DRAWIN', machineChoices.value)
+                                //store.dispatch('addToBoard', newPiece)
+                                d++
+                            }
+                            //else if (newPiece.value[0] === first.value || newPiece.value[1] === first.value || newPiece.value[0] === last.value || newPiece.value[1] === last.value){
+                            else {    
                                 newPiece.player = false
                                 machineChoices.value.push(newPiece)
                                 continueDrawing.value = false
-
+                                keepPlaying.value = false
                                 console.log('MACHINECHOICES HAS A NEW SOLUION AFER DRAWIN', machineChoices.value)
+                                store.dispatch('addToBoard', newPiece)
                                 break
-                            }
-
+                                }
                         }
-                        if (machineChoices.value.length === 1){
+                        
+                            }       
+                            upToThePlayer()
+                        }
+                        /*if (machineChoices.value.length === 1){
                             let piece = machineChoices.value[0]
                             piece.player = false
                             console.log("1 PIECE TO PLAY", piece, first.value, last.value)
-                            
-                            store.dispatch('addToBoard', piece)
-                        }
-                        if (machineChoices.value.length === 0){
-                            //console.log('restPieces', restPieces.value)
-                            //store.dispatch('evaluatePlayerChoices')
-                            //console.log('PLAYER CHOICES', playerChoices.value, 'SIDER afer EVALUAE', sider.value)
-                    
-                            //if (playerChoices.value[0].length) {
-                            //    sider.value = true
-                            //}
-                        }
                         
-                    }
+                            store.dispatch('addToBoard', piece)
+                            upToThePlayer()
+                        }*/
+                        
                     
-                }
                 //la machine a un domino possible
-                if (machineChoices.value.length === 1){
+                else if (machineChoices.value.length === 1){
                     let piece = machineChoices.value[0]
                     piece.player = false
                     console.log("1 PIECE TO PLAY", piece, first.value, last.value)
                     
                     store.dispatch('addToBoard', piece)
+                    upToThePlayer()
                 }
                 //la machine a un ou plusieurs dominos possibles : comment choisir le meilleur ?
-                if (machineChoices.value.length > 1) {
+                else if (machineChoices.value.length > 1) {
                     console.log('BOARD FOR MAKECHOICE', board.value)
                     console.log('machineChoices.value', machineChoices.value)
                     makeChoice(machineChoices)
+                    upToThePlayer()
                 }
-            
             }
-                
-                
-                keepPlaying.value = false
-                console.log('MACHINE HAND AFTER MACHINE PLAYS', machineHand.value)
-                if (!machineHand.value.length) {
-                    store.dispatch('machineWinsIsTrue')
-                } else {
-                    console.log('BOARD', board.value)
-                    console.log('HEAD AND TAIL PLAYER', first.value, last.value)
-                    console.log('KEEPPLAYING MACHINEPLAYS END TO PLAYER', keepPlaying.value)
-                    console.log('SIDER before EVALUAE', sider.value)
-                    console.log('restPieces', restPieces.value)
-                    store.dispatch('evaluatePlayerChoices')
-                    console.log('PLAYER CHOICES', playerChoices.value, 'SIDER afer EVALUAE', sider.value)
-                    //message.value = `C'est à vous, ${name.value} !`
-                    //store.dispatch('setAlert')
-                    if (playerChoices.value[0].length) {
-                        sider.value = true
-                    }
-                    
-                }
             
+            
+            else if (board.value.length && keepPlaying.value === false) {
+                upToThePlayer()
+            }      
+            
+        }
+        // passe la main au joueur
+        function upToThePlayer(){
+            keepPlaying.value = false
+            console.log('MACHINE HAND AFTER MACHINE PLAYS', machineHand.value)
+            if (!machineHand.value.length) {
+                store.dispatch('machineWinsIsTrue')
+            } else {
+                console.log('BOARD', board.value)
+                console.log('HEAD AND TAIL PLAYER', first.value, last.value)
+                console.log('KEEPPLAYING MACHINEPLAYS END TO PLAYER', keepPlaying.value)
+                console.log('SIDER before EVALUAE', sider.value)
+                console.log('restPieces', restPieces.value)
+                store.dispatch('evaluatePlayerChoices')
+                console.log('PLAYER CHOICES', playerChoices.value, 'SIDER afer EVALUAE', sider.value)
+
+                
+                if (!playerChoices.value[0].length && !playerChoices.value[1].length && !dominoes.length) {
+                    stopDrawing = true
+                }
+                else if (!playerChoices.value[0].length && !playerChoices.value[1].length && dominoes.length) {
+                    draw = true
+                }
+                else if (playerChoices.value[0].length) {
+                    sider.value = true
+                }
+                
+            }
         }
 
         // pioche (illimitée, jusqu'à trouver le bon domino, ou à vider la réserve)
@@ -594,7 +633,7 @@
                         return
                     }
                     if (stopDrawing.value === false) {
-                        store.dispatch('drawOne', side)
+                        store.dispatch('drawOne', 0)
                         console.log('DRAW ONE O HE SORE', machine.value.hand)
                         //return machine.value.hand
                     }
@@ -644,7 +683,7 @@
 
 
         // afficher le résultat de la partie
-    function claimVictory(){
+    async function claimVictory(){
         console.log('ENTERING CLAIM VICTORY...', playerWins.value, machineWins.value, neitherWins.value)
         draw.value = false
         stopDrawing = false
@@ -680,43 +719,50 @@
             victory.machine = true
             victory.score = finalTotal
         }
-        store.dispatch('setAlert')
-        store.dispatch('updateScore', victory)
-        reset.value = true
-        console.log('ROUND #', round.value, 'PLAYER', player.value, 'MACHINE', machine.value)
+        await store.dispatch('updateScore', victory)
+        if (player.value.score >= 100){
+            message.value += ` ************************** Bravo, ${player.value.name} ! Vous avez gagné cette partie avec ${player.value.score}.` 
+            store.dispatch('setAlert')           
+            }
+        else if (machine.value.score >= 100){
+            message.value += ` ************************** Cette fois, ${player.value.name}, c'est la machine qui gagne la partie, avec ${player.value.score}. Désolé...` 
+            store.dispatch('setAlert')           
+            }
+        else {
+            message.value += ` ************************** MANCHE N°${round.value}   
+            ${player.value.name} : ${player.value.score} -- MACHINE : ${machine.value.score}`
+            }
 
+        await store.dispatch('setAlert')
+        reset.value = true
+        //console.log('ROUND #', round.value, 'PLAYER', player.value, 'MACHINE', machine.value)
+        //setTimeout(store.dispatch('unsetAlert'), 5000)
+
+        //await store.dispatch('resetPlayerHand')
+        //await store.dispatch('resetMachineHand')
         
         }
 
         // conclure, avant de passer au tour suivant
         async function nextRound(){
-            await resetAll()
+            reset.value = false
+            await store.dispatch('resetBoard')
+            await store.dispatch('resetPlayerHand')
+            await store.dispatch('resetMachineHand')
+            
+            //console.log('nextRnd' + ' player ' + player.value.name + ' machine ' + machine.value.score)
+            
             await store.dispatch('updateRound')
-            if (generalPlayerScore.value >= 100){
-                message.value = `Bravo, ${player.value.name} ! Vous avez gagné cette partie avec ${generalPlayerScore.value}.` 
-                store.dispatch('setAlert')           
-                }
-            else if (generalMachineScore.value >= 100){
-                message.value = `Cette fois, ${player.value.name}, c'est la machine qui gagne la partie, avec ${generalMachineScore.value}. Désolé...` 
-                store.dispatch('setAlert')           
-                }
-            else {
-                message.value = `MANCHE N°${round.value}   
-                ${player.value.name} : ${generalPlayerScore.value} -- MACHINE : ${generalMachineScore.value}`
-                store.dispatch('setAlert')
-                reset.value = false
-                newRound.value = true
-                //setTimeout(store.dispatch('unsetAlert'), 5000)
-            }
+            //await resetAll()
+            store.dispatch('setStartToTrue')
         }
 
-        async function resetAll(){
-            //store.dispatch('setStartToTrue')
-            await store.dispatch('resetAll')
+      function resetAll(){
+            //await store.dispatch('updatePlayerAndMachine')
             keepPlaying.value = true
             draw.value = false
             stopDrawing = false
-            reset.value = false
+            
             continueDrawing.value = false
             playerStarts.value = false
             machineStarts.value = false
@@ -728,12 +774,17 @@
             sider.value = false
             newRound.value = false
             machineChoices.value = []
+            
+            store.dispatch('resetAll')
             console.log('RESET A', reset.value)
         }
 
-        function relaunch(){
+        async function relaunch(){
+            await resetAll()
             newRound.value = false
+            message.value = ''
             store.dispatch('unsetAlert')
+            console.log('relaunch' + ' player' + player.name + ' machine' + machine.hand)
             launch()
         }
       

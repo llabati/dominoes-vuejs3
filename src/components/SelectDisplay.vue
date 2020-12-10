@@ -1,9 +1,12 @@
 <template lang="pug">
 .select.choose
-    div(style='height: 20px; position: relative; top: 100;')
+    //div(style='height: 20px; position: relative; top: 100;')
+    div(style='height: 20px')
         p.lead 
             slot
-    .hand(style="margin-top: 25px; position: relative; top: 200;")
+    
+    //.hand(style="margin-top: 25px; position: relative; top: 200;")
+    .hand(style="margin-top: 25px;")
         .flex-list
             button.btn-name(style="margin-top: 50px; width: 10%;" @click='left(piece)') &larr;
             domino.domino-vert.active-domino(:value='piece.value' @click='chooseDom(piece)')
@@ -43,7 +46,7 @@ export default {
 <style>
 .select {
     position: relative; 
-    /*top: -100px;*/
+    /*top: 100px;*/
     margin: 20px auto;
     padding: 15px;
     border: solid 3px white;

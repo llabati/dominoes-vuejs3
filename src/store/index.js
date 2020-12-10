@@ -8,7 +8,6 @@ import _ from 'lodash'
 import gameModule from './game/index.js'
 
 
-
 const store = createStore({
     state() {
         return {
@@ -32,8 +31,21 @@ const store = createStore({
             veryEndLeft: [],
             endRight: [],
             veryEndRight: [], 
-            player: Player,
-            machine: Machine,
+            player: {
+                name: '',
+                hand: [],
+                score: 0,
+                victories: 0,
+                recent_winning: false
+            },
+            machine: {
+                hand: [],
+                score: 0,
+                victories: 0,
+                recent_winning: false
+            },
+            /*player: Player,
+            machine: Machine,*/
             machineChoices: [],
             playerChoices: [ [], [] ],
             locks: [],
@@ -47,7 +59,6 @@ const store = createStore({
     },
     getters: {
         getPlayer(state){
-            localStorage.setItem('player', JSON.stringify(state.player))
             return state.player
         },
         getMachine(state){
@@ -223,8 +234,23 @@ const store = createStore({
         neitherWinsIsTrue( { commit } ){
             commit('NEITHERWINS_IS_TRUE')
         },
+        resetBoard( { commit } ) {
+            commit('RESET_BOARD')
+        },
         resetAll( { commit } ){
             commit('RESET_ALL')
+        },
+        resetPlayerHand({ commit }){
+            commit('RESET_PLAYER_HAND')
+        },
+        resetMachineHand({ commit }){
+            commit('RESET_MACHINE_HAND')
+        },
+        resetPlayerChoices({ commit }){
+            commit('RESET_PLAYER_CHOICES')
+        },
+        updatePlayerAndMachine( { commit } ){
+            commit('UPDATE_PLAYER_AND_MACHINE')
         }
         
 
@@ -525,12 +551,8 @@ const store = createStore({
             console.log('MA', state.machine)
             console.log('game', state.gameModule)
         },
-        RESET_ALL(state){
-            state.start = false
-            state.dominoes = []
+        RESET_BOARD(state){
             state.board = []
-            state.first = undefined
-            state.last = undefined
             state.begin = []
             
             state.leftOne = []
@@ -546,7 +568,14 @@ const store = createStore({
             state.veryEndLeft = []
             state.endRight = []
             state.veryEndRight = []
-            state.machineChoices = []
+        },
+        RESET_ALL(state){
+            state.start = false
+            state.dominoes = []
+            //state.board = []
+            state.first = undefined
+            state.last = undefined
+            //state.machineChoices = []
             state.playerChoices = []
             state.locks = []
             state.possibleLocks = []
@@ -554,10 +583,25 @@ const store = createStore({
             state.playerWins = false
             state.machineWins = false
             state.neitherWins = false
-            state.player.hand = []
-            state.machine.hand = []
             state.gameModule.stuck = false
             console.log('RESET stre  -- stc' + state.gameModule.stuck )
+        },
+        RESET_PLAYER_HAND(state){
+            state.player.hand = []
+        },
+        RESET_MACHINE_HAND(state){
+            state.machine.hand = []
+        },
+        RESET_PLAYER_CHOICES(state) {
+            state.playerChoices = [ [], [] ]
+        },
+        UPDATE_PLAYER_AND_MACHINE(state){
+            console.log('RESET payer ' + state.player.name + ' hand ' + state.player.hand[0])
+            /*state.player = Object.assign(state.player, { hand: [] })
+            state.machine = Object.assign(state.machine, { hand: [] })*/
+            state.player.hand = []
+            state.machine.hand = []
+            console.log('RESET payer ' + state.player + ' hand ' + state.player.hand[0])
         }
         
     },
