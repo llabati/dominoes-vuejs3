@@ -8,7 +8,7 @@ export default {
     // évalue les choix du joueur
     evaluatePlayerChoices: function(player, first, last){
         console.log('EVALUATE PLAYER CHOICES', 'FIRST', first, 'LAST', last, 'PLAYER', player)
-        let selection = player.value.hand.filter( d => d.value[0] === first || d.value[0] === last || d.value[1] === first || d.value[1] === last )
+        let selection = player.hand.filter( d => d.value.includes(first) || d.value.includes(last) )
         let ambi = []
         for (let domino of selection){
             if (domino.ambidextrous === true) domino.ambidextrous = false
@@ -22,7 +22,7 @@ export default {
         }
         else {
             for (let domino of selection){
-                if ( domino.value[0] === first && domino.value[1] === last || domino.value[0] === last && domino.value[1] === first ){
+                if ( domino.value.includes(first) && domino.value.includes(last) ){
                     domino.ambidextrous = true
                     ambi.push(domino)
                 }
@@ -35,10 +35,10 @@ export default {
 
     // empêche la mise par le joueur sur le tapis de jeu d'un domino inadéquat
     warningWrongDomino: function(domino, first, last, wrong) {
-        console.log('DOMINO in CALCULATIONS.WARNING', domino.value, 'FIRSTE ET LAST', first.value, last.value, 'FIRST ET LAST', first, last)
-        if(domino.value[0] !== first.value && domino.value[0] !== last.value && domino.value[1] !== first.value && domino.value[1] !== last.value) {
+        console.log('DOMINO in CALCULATIONS.WARNING', domino.value, 'FIRSTE ET LAST', first, last, 'FIRST ET LAST', first, last)
+        if(!domino.value.includes(first) && !domino.value.includes(last) ) {
             console.log('WRONG DOMINO!')
-            wrong.value = true
+            wrong = true
         }
     },
     
@@ -46,7 +46,7 @@ export default {
     // favorise le choix des doubles
     calculateBestChoice: function(machineChoices){
         console.log('MACHINECHOICES ENTERING CALCULEBEST CHOICE', machineChoices)
-            let computedChoices = machineChoices.value.map(e => [ e.value[0], e.value[1], e.value[0] + e.value[1] ])
+            let computedChoices = machineChoices.map(e => [ e.value[0], e.value[1], e.value[0] + e.value[1] ])
                 console.log('COMPUTEDCHOICES', computedChoices)
 
             let finalChoices = (computedChoices.find( e => e[0] === e[1])) ? computedChoices.filter(a => a[0] === a[1]).sort((a,b) => b[2] - a[2]) : computedChoices.sort((a,b) => b[2] - a[2])
@@ -62,18 +62,18 @@ export default {
     lockPlayer(machineChoices, newLocks, first, last, possibleLocks){
         
         //console.log('MACHINECHOICES in LOCKPLAYER', machineChoices, newLocks.value, possibleLocks.value)
-        let actualLocks = newLocks.filter( d => d.value.includes(first.value) || d.value.includes(last.value) )
-        let stopChoice = actualLocks.find( d => d.value === [ first.value, last.value ] || d.value === [ last.value, first.value ] )
+        let actualLocks = newLocks.filter( d => d.value.includes(first) || d.value.includes(last) )
+        let stopChoice = actualLocks.find( d => d.value === [ first, last ] || d.value === [ last, first ] )
 
-        if (stopChoice && newLocks.value.includes(first.value) && stopChoice.value === [ first.value, last.value ]){
+        if (stopChoice && newLocks.includes(first.value) && stopChoice === [ first, last ]){
             stopChoice = swap(stopChoice)
         }
-        if (stopChoice && newLocks.value.includes(last.value) && stopChoice.value === [ first.value, last.value ]){
+        if (stopChoice && newLocks.includes(last) && stopChoice === [ first, last ]){
             stopChoice = swap(stopChoice)
         }
 
-        if (stopChoice) machineChoices.value = [ stopChoice ]
-        if (actualLocks) machineChoices.value = machineChoices.filter( d => !d.value.includes(actualLocks[0]) || !d.value.includes(actualLocks[1]) )
+        if (stopChoice) machineChoices = [ stopChoice ]
+        if (actualLocks) machineChoices = machineChoices.filter( d => !d.value.includes(actualLocks[0]) || !d.value.includes(actualLocks[1]) )
         
         //let lockChoices = []
         //let stopChoice = doubleLockPlayer(first, last, newLocks, machineChoices)

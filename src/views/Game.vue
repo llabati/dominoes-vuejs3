@@ -32,6 +32,7 @@ export default {
     }
 
     function setBoard(){
+      console.log('SET BOARD, Launch TRUE')
         launch.value = true
       }
       
